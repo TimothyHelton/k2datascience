@@ -23,6 +23,10 @@ import sys
 
 from k2datascience import __version__
 
+mock_modules = [
+]
+for mod_name in mock_modules:
+    sys.modules[mod_name] = mock.Mock()
 
 sys.path.insert(0, osp.abspath('../k2datascience'))
 
