@@ -39,9 +39,12 @@ setup(
     keywords='common tools utility',
     packages=find_packages(exclude=['docs', 'tests*']),
     install_requires=[
+        'matplotlib',
         'numpy',
+        'pandas',
         'pip',
         'pytest',
+        'seaborn',
         ],
     package_dir={'k2datascience': 'k2datascience'},
     include_package_data=True,

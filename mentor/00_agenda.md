@@ -1,6 +1,6 @@
 # Mentor Session 00 Agenda
 
-#### March ##, #:##pm (45 Minutes)
+#### April 6, 2017 7:00am (45 Minutes)
 
 [Introductions](#introductions)
 

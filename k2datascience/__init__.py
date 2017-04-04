@@ -4,6 +4,8 @@
 from pkg_resources import get_distribution, DistributionNotFound
 import os.path as osp
 
+from . import stats
+
 
 __version__ = '1.0.0'
 
