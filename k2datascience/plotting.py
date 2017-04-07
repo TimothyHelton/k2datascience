@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Statistics Module
+""" Plotting Module
 
 .. moduleauthor:: Timothy Helton <timothy.j.helton@gmail.com>
 """
