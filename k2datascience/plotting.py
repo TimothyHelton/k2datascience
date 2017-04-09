@@ -54,7 +54,7 @@ def distribution_plot(data, title, x_label, n_bins=50, title_size=24,
 
 def pies_plot(data, title, subtitle, title_size=24, label_size=14,
               legend_loc=(1.1, 0.3), save=False):
-    """Create plot with histogram and two pie plots that share categories. 
+    """Create plot with bar plot above two pie plots that share categories. 
     
     :param pd.DataFrame data: data to be plotted
     :param str title: plot title
