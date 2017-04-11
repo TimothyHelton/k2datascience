@@ -7,14 +7,12 @@ dist/*
 *.dll
 *.exe
 *.o
+*.pdf
 *.pyc
 *.so
 
 # Ipython Files #
 notebooks/.ipynb_checkpoints/*
-
-# Local preferences #
-workspace.xml
 
 # Logs and databases #
 *.log
