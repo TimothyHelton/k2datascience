@@ -60,7 +60,7 @@ class TurnstileData:
         raw_files = glob.glob(osp.join(self.data_dir, '*'))
         frames = (pd.read_csv(x) for x in raw_files)
         self.data = pd.concat(frames, ignore_index=True)
-        self.data.columns = [x.lower() for x in self.data.columns]
+        self.data.columns = [x.strip().lower() for x in self.data.columns]
 
     def get_time_stamp(self):
         """Add Series to data that is date_time object."""
