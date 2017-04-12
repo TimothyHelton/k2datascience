@@ -44,6 +44,7 @@ setup(
         'pandas',
         'pip',
         'pytest',
+        'python-dateutil',
         'seaborn',
         ],
     package_dir={'k2datascience': 'k2datascience'},
