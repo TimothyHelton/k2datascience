@@ -39,13 +39,22 @@ Purpose:
     - Chapter 2 Complete
 #### Unit 6: Getting and Cleaning Data
 - Completed all lectures
-
+- Working on NYC MTA Turnstile Dataset
+    - Scraped website to gather data files and save them to disk.
+    - Working through the exercises using dictionaries as requested in 
+    addition to Pandas' DataFrames.
+    - Thinking of putting the data files into a PostgreSQL database.
 
 [Table of Contents](#toc)
 
 
 ---
 ### <a name="technical_questions"></a> Technical Questions 
+1. From the NYC MTA dataset it seems like a hassle to convert strings of 
+dates and time to a datetime object.
+    1. Is it usually more beneficial to leave times and dates in string format?
+        1. I could see how it may be beneficial to convert data types for 
+        plotting reasons.
 
 
 [Table of Contents](#toc)
