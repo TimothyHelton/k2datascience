@@ -50,11 +50,6 @@ Purpose:
 
 ---
 ### <a name="technical_questions"></a> Technical Questions 
-1. From the NYC MTA dataset it seems like a hassle to convert strings of 
-dates and time to a datetime object.
-    1. Is it usually more beneficial to leave times and dates in string format?
-        1. I could see how it may be beneficial to convert data types for 
-        plotting reasons.
 
 
 [Table of Contents](#toc)

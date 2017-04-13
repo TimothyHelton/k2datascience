@@ -41,9 +41,16 @@ class TurnstileData:
         self.url = 'http://web.mta.info/developers/turnstile.html'
         self.request = requests.get(self.url)
         self.data = None
-        self.data_dir = osp.realpath(osp.join('..', 'data',
-                                              'nyc_mta_turnstile'))
+        self.data_dir = osp.realpath(osp.join(osp.dirname(__file__), '..',
+                                              'data', 'nyc_mta_turnstile'))
         self.data_files = None
+
+        self._daily_totals = None
+
+    @property
+    def daily_totals(self):
+        self.get_daily_totals()
+        return self._daily_totals
 
     def __repr__(self):
         return f'TurnstileData()'
@@ -61,6 +68,16 @@ class TurnstileData:
         frames = (pd.read_csv(x) for x in raw_files)
         self.data = pd.concat(frames, ignore_index=True)
         self.data.columns = [x.strip().lower() for x in self.data.columns]
+
+    def get_daily_totals(self):
+        """Retrieve entries per turnstile for individual days."""
+        turnstile = [self.data['c/a'], self.data.unit, self.data.scp,
+                     self.data.station,
+                     pd.Series([x.date() for x in self.data.time_stamp])]
+        self._daily_totals = self.data.entries.groupby(turnstile).sum()
+        self._daily_totals = self._daily_totals.to_frame().reset_index()
+        self._daily_totals.columns = [x if x != 'level_4' else 'date'
+                                      for x in self._daily_totals.columns]
 
     def get_time_stamp(self):
         """Add Series to data that is date_time object."""
