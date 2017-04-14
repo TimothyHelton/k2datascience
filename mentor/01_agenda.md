@@ -57,7 +57,15 @@ Purpose:
 
 ---
 ### <a name="notes"></a> Notes
-- Next Week's Data Science Conversation: 
+- Data Science Conversations:
+    - Use a couple of Gunnar's prior studies and mixed in with content from 
+    the web.
+    - Next Week's Conversation: I will find Blog post
+- Knowledge Graph
+- Graph theory
+- Develop project plan within the next three weeks
+    - Goal of project will be develop real word analysis
+    - Potentially become capstone project
 
 [Table of Contents](#toc)
 
