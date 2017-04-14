@@ -1,3 +1,3 @@
 # K2 Data Science Bootcamp
 
-![alt-text](images/projects/projects.png)
+<iframe src="images/projects/projects.html"></iframe>
