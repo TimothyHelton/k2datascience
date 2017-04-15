@@ -18,8 +18,8 @@
 
             .node circle {
                 fill: #fff;
-                stroke: steelblue;
-                stroke-width: 2px;
+                stroke: black;
+                stroke-width: 1px;
             }
 
             .node text {
@@ -103,7 +103,15 @@
 
             nodeEnter.append("circle")
                 .attr("r", 1e-6)
-                .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+                .style("fill", function(d) {
+                    if(d.type === "database") return "palegreen";
+                    if(d.type === "documentation") return "salmon";
+                    if(d.type === "project") return "wheat";
+                    if(d.type === "python") return "skyblue";
+                    if(d.type === "root") return "black";
+                    if(d.type === "visualize") return "plum";
+                    if(d.type === "web_scrape") return "yellow";
+                });
 
             nodeEnter.append("text")
                 .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
@@ -119,7 +127,15 @@
 
             nodeUpdate.select("circle")
                 .attr("r", 4.5)
-                .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+                .style("fill", function(d) {
+                    if(d.type === "database") return "palegreen";
+                    if(d.type === "documentation") return "salmon";
+                    if(d.type === "project") return "wheat";
+                    if(d.type === "python") return "skyblue";
+                    if(d.type === "root") return "black";
+                    if(d.type === "visualize") return "plum";
+                    if(d.type === "web_scrape") return "yellow";
+                });
 
             nodeUpdate.select("text")
                 .style("fill-opacity", 1);
