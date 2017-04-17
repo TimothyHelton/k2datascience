@@ -1,33 +1,7 @@
 {
-  "name": "Timothy Helton",
+  "name": "Timothy Helton Projects",
   "type": "root",
   "children": [
-    {
-      "name": "Node Color Key",
-      "type": "project",
-      "children": [
-        {
-          "name": "Scrape Web",
-          "type": "web_scrape"
-        },
-        {
-          "name": "Database",
-          "type": "database"
-        },
-        {
-          "name": "Python",
-          "type": "python"
-        },
-        {
-          "name": "Visualize",
-          "type": "visualize"
-        },
-        {
-          "name": "Documentation",
-          "type": "documentation"
-        }
-      ]
-    },
     {
       "name": "NYC MTA Turnstile",
       "type": "project",
@@ -55,6 +29,16 @@
         {
           "name": "Sphinx",
           "type": "documentation"
+        }
+      ]
+    },
+    {
+      "name": "Next Project",
+      "type": "project",
+      "children": [
+        {
+          "name": "Web Scrapping",
+          "type": "web_scrape"
         }
       ]
     }

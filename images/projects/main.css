@@ -1,0 +1,119 @@
+/*
+=============================
+Buttons
+=============================
+*/
+
+.btn-alt {
+    background: #000000;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 3px;
+ }
+
+.btn-alt:hover {
+    background: #fff;
+    color: #000000;
+}
+
+/*
+=============================
+Legend
+=============================
+*/
+
+.legend_box {
+    border: 1px solid black;
+    margin-top: 5mm;
+    width: 12ch;
+}
+
+.legend_title {
+    font: 14px sans-serif;
+    text-align: center;
+}
+
+.legend_text {
+    margin-left: 3mm;
+    vertical-align: middle;
+}
+
+.legend_blue {
+    background: skyblue;
+}
+
+.legend_green {
+    background: palegreen;
+}
+
+.legend_purple {
+    background: plum;
+}
+
+.legend_red {
+    background: salmon;
+}
+
+.legend_yellow {
+    background: yellow;
+}
+
+.legend_blue,
+.legend_green,
+.legend_purple,
+.legend_red,
+.legend_yellow {
+    float: left;
+    height: 10px;
+    margin: 0px;
+    padding: 0px;
+    width: 10px;
+    vertical-align: middle;
+}
+/*
+=============================
+Lines
+=============================
+*/
+.line_no_space {
+    margin: 0px;
+    padding: 0px;
+}
+
+/*
+=============================
+Nodes
+=============================
+*/
+
+.node {
+    cursor: pointer;
+}
+
+.node circle {
+    fill: #fff;
+    stroke: black;
+    stroke-width: 1px;
+}
+
+.node text {
+    font: 10px sans-serif;
+}
+
+.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1px;
+}
+
+/*
+=============================
+Paragraph
+=============================
+*/
+
+p {
+    font: 10px sans-serif;
+    margin: 0px;
+    padding: 1px;
+}
