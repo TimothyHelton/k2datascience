@@ -48,7 +48,25 @@
 
 ---
 ### <a name="notes"></a> Notes
-- Next Week's Data Science Conversation: 
+- Next Week's Data Science Conversation: Find Blog
+- Try to send out on Monday
+
+
+#### Math Applications for Data Science
+- 40% Algorithms
+- 35% Probability Statistics
+
+To Develop New Models
+- Calculus (Machine Theory optimization)
+- Linear Algebra
+
+#### Host D3 Graphics on GitHub
+GitHub IO
+- Host web pages
+
+#### Think of topics for project
+- Avoid the use to easily procured data sets
+- Find topic that requires web scraping and database creation
 
 [Table of Contents](#toc)
 
