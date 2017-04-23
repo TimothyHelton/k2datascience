@@ -18,4 +18,4 @@ Indices and tables
 Projects
 ========
 
-.. image:: ../images/projects/projects.png
+`Visit My Website <https://timothyhelton.github.io/>`_
