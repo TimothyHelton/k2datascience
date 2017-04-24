@@ -1,6 +1,6 @@
 # Mentor Session ## Agenda
 
-#### Month ##, 7:00am (45 Minutes)
+#### April, 27 7:00am (45 Minutes)
 
 
 [Data Science Conversation](#ds_converstation)
@@ -49,6 +49,7 @@
 
 ---
 ### <a name="status_update"></a> Status Update
+- Created Time Series Forecasting notebook 
 - Created GitHub pages website
     - https://timothyhelton.github.io/
     - This site will serve as a portfolio of my projects.
