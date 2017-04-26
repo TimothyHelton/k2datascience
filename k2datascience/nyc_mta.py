@@ -12,7 +12,6 @@ import os
 import os.path as osp
 import re
 
-from dateutil.parser import parse
 import pandas as pd
 import requests
 
@@ -35,6 +34,9 @@ class TurnstileData:
         the url attribute
     **request**: *requests.models.Response* response object from scraping \
         the url attribute
+    **station_daily**: *pandas.DataFrame* sum of entries and exits by station
+    **turnstile_daily**: *pandas.DataFrame* sum of entries and exits by \
+        turnstile
     **url**: *str* web address for turnstile data
     """
     def __init__(self):
@@ -45,12 +47,20 @@ class TurnstileData:
                                               'data', 'nyc_mta_turnstile'))
         self.data_files = None
 
-        self._daily_totals = None
+        self.get_data()
+
+        self._turnstile_daily = None
+        self._station_daily = None
 
     @property
-    def daily_totals(self):
-        self.get_daily_totals()
-        return self._daily_totals
+    def station_daily(self):
+        self.get_station_daily()
+        return self._station_daily
+
+    @property
+    def turnstile_daily(self):
+        self.get_turnstile_daily()
+        return self._turnstile_daily
 
     def __repr__(self):
         return f'TurnstileData()'
@@ -67,22 +77,44 @@ class TurnstileData:
         raw_files = glob.glob(osp.join(self.data_dir, '*'))
         frames = (pd.read_csv(x) for x in raw_files)
         self.data = pd.concat(frames, ignore_index=True)
-        self.data.columns = [x.strip().lower() for x in self.data.columns]
+        self.data.columns = [x.strip().lower().replace('/', '_')
+                             for x in self.data.columns]
 
-    def get_daily_totals(self):
-        """Retrieve entries per turnstile for individual days."""
-        turnstile = [self.data['c/a'], self.data.unit, self.data.scp,
-                     self.data.station,
-                     pd.Series([x.date() for x in self.data.time_stamp])]
-        self._daily_totals = self.data.entries.groupby(turnstile).sum()
-        self._daily_totals = self._daily_totals.to_frame().reset_index()
-        self._daily_totals.columns = [x if x != 'level_4' else 'date'
-                                      for x in self._daily_totals.columns]
+    def get_turnstile_daily(self):
+        """Filter data to find daily entries and exits per turnstile."""
+        mask = ['c_a', 'unit', 'station', 'scp',
+                pd.Series([x.date() for x in self.data.time_stamp],
+                          name='date')]
+        self._turnstile_daily = self.data.groupby(mask)['entries',
+                                                        'exits'].sum()
+
+    def get_station_daily(self, control_area=False, unit=False):
+        """Filter data to find entries and exits per station.
+        
+        .. note:: Data will always be filtered by station and date.
+        
+        :param bool control_area: if True the data will be additionally \ 
+            filtered based on control area
+        :param bool unit: if True data will be additionally filtered based \ 
+            on unit
+        """
+        mask = ['station',
+                pd.Series([x.date() for x in self.data.time_stamp],
+                          name='date')]
+
+        if unit:
+            mask = ['unit'] + mask
+
+        if control_area:
+            mask = ['c_a'] + mask
+
+        self._station_daily = self.data.groupby(mask)['entries', 'exits'].sum()
 
     def get_time_stamp(self):
         """Add Series to data that is date_time object."""
-        self.data['time_stamp'] = self.data.date.str.cat(self.data.time,
-                                                         sep=' ').map(parse)
+        time_stamp = pd.to_datetime(self.data.date.str.cat(self.data.time,
+                                                           sep=' '))
+        self.data['time_stamp'] = time_stamp
 
     def write_data_files(self, qty=None, overwrite=False):
         """Retrieve and write requested data files to the data directory.
