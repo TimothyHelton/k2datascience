@@ -91,7 +91,8 @@ class TurnstileData:
     def get_station_daily(self, control_area=False, unit=False):
         """Filter data to find entries and exits per station.
         
-        .. note:: Data will always be filtered by station and date.
+        .. note:: Data will always be filtered by station, date, week and \ 
+        weekday.
         
         :param bool control_area: if True the data will be additionally \ 
             filtered based on control area
@@ -100,7 +101,11 @@ class TurnstileData:
         """
         mask = ['station',
                 pd.Series([x.date() for x in self.data.time_stamp],
-                          name='date')]
+                          name='date'),
+                pd.Series([x.week for x in self.data.time_stamp],
+                          name='week'),
+                pd.Series([x.weekday() for x in self.data.time_stamp],
+                          name='weekday')]
 
         if unit:
             mask = ['unit'] + mask

@@ -39,10 +39,6 @@
             1. Define the persistence model.
             1. Make a forecast and establish a baseline performance.
             1. Review the complete example and plot the output.
-    - Expanding Window Model
-        - Discuss in mentor session 04
-    - Rolling Window Forecast Model
-        - Discuss in mentor session 05
 
 [Table of Contents](#toc)
 
@@ -53,6 +49,15 @@
 - Created GitHub pages website
     - https://timothyhelton.github.io/
     - This site will serve as a portfolio of my projects.
+    
+#### Unit 5: Introduction to Data Science
+- Reading "The Art of Data Science"
+    - Chapter 3 Complete
+    
+#### Unit 6: Getting and Cleaning Data
+- NYC MTA Turnstile Dataset
+    - Completed all exercises
+    - Need to review the solution and submit
 
 [Table of Contents](#toc)
 
@@ -72,7 +77,12 @@
 
 ---
 ### <a name="notes"></a> Notes
-- Next Week's Data Science Conversation: 
+- Next Week's Data Science Conversation:
+    - [Simple Time Series Forecasting Models to Test So That You Don't Fool Yourself](http://machinelearningmastery.com/simple-time-series-forecasting-models/)
+        - Expanding Window Model
+            - Discuss in mentor session 04
+        - Rolling Window Forecast Model
+            - Discuss in mentor session 05
 
 [Table of Contents](#toc)
 
