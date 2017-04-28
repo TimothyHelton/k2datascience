@@ -1,6 +1,6 @@
-# Mentor Session ## Agenda
+# Mentor Session 03 Agenda
 
-#### April, 27 7:00am (45 Minutes)
+#### April 27, 7:00am (45 Minutes)
 
 
 [Data Science Conversation](#ds_converstation)
@@ -83,6 +83,27 @@
             - Discuss in mentor session 04
         - Rolling Window Forecast Model
             - Discuss in mentor session 05
+            
+- Look into this packages for time series analysis:
+    - [Prophet](http://blog.revolutionanalytics.com/2017/02/facebook-prophet.html)
+    - [Smart Drill](http://smartdrill.com/time-series.html)
+    
+- Update the About section of the webpage:
+    - Add thesis information
+    - Talk about work
+    - Make it more like a blog
+    - I'm the guy to bring big data to engineering designs
+
+- Pull Historical Data to create a unique dataset
+    - Track medical device companies web pages from history and look at what
+     they promised over time.
+        - Identify medical device companies
+        - Mask IP to avail getting blacklisted
+        - Try to get into thousands of companies
+        - Look at crunch base 
+    - [Way Back Machine](https://archive.org/help/wayback_api.php)
+    - [Big Query](https://cloud.google.com/bigquery/what-is-bigquery)
+    - [Facebook](https://developers.facebook.com/docs/graph-api)
 
 [Table of Contents](#toc)
 
