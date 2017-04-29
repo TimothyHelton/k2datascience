@@ -33,14 +33,9 @@ TODO
     - Make it more like a blog
     - I'm the guy to bring big data to engineering designs
 
-TODO
-- Investigated Dataset:
-    - [U.S. Chronic Disease Indicators (CDI)](https://catalog.data.gov/dataset/u-s-chronic-disease-indicators-cdi-e50c9)
-    - time series Yes or NO
-
 #### Unit 6: Getting and Cleaning Data
 - NYC MTA Turnstile Dataset
-    - TODO Review Solution
+    - Reviewed Solution
 - yelp Dataset
     - TODO Begin
 
@@ -51,6 +46,13 @@ TODO
 ### <a name="technical_questions"></a> Technical Questions 
 
 #### Project Ideas
+- Investigated Dataset:
+    - [U.S. Chronic Disease Indicators (CDI)](https://catalog.data.gov/dataset/u-s-chronic-disease-indicators-cdi-e50c9)
+    - [Initial Investigation](https://github.com/TimothyHelton/k2datascience/blob/master/notebooks/US_Chronic_Disease_Indicators.ipynb)
+    - Most promising attribute of this dataset would be exploring illnesses 
+    based on geographical location.
+    - Probably not a project title.
+
 TODO
 - Pull Historical Data to create a unique dataset
     - Track medical device companies web pages from history and look at what
