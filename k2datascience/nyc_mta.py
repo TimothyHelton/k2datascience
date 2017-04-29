@@ -159,4 +159,3 @@ class TurnstileData:
                 f.write(r.text)
             remaining_files -= 1
             logging.info(f'Remaining Files: {remaining_files}\n\n')
-

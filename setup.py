@@ -45,6 +45,7 @@ setup(
         'pip',
         'pytest',
         'python-dateutil',
+        'requests',
         'seaborn',
         ],
     package_dir={'k2datascience': 'k2datascience'},
