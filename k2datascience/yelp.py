@@ -6,6 +6,7 @@
 .. moduleauthor:: Timothy Helton <timothy.j.helton@gmail.com>
 """
 
+from collections import Counter
 import logging
 import os
 import os.path as osp
@@ -31,6 +32,30 @@ data_files = (
     # 'tip',
     # 'user',
 )
+
+
+def convert_boolean(series):
+    """Convert Pandas Series boolean values True to 1 and False to 0.
+
+    :param pandas.Series series: Pandas Series to be converted
+    """
+
+    def conversion(conversion_dict):
+        """Recursively convert boolean objects to integers.
+
+        :param dict conversion_dict: dictionary to be converted
+        :returns: original dictionary with boolean object replaced with \
+            integers
+        :rtype: dict
+        """
+        for k, v in conversion_dict.items():
+            if isinstance(v, dict):
+                conversion(v)
+            elif isinstance(v, bool):
+                conversion_dict[k] = v * 1
+        return conversion_dict
+
+    return series.map(conversion)
 
 
 class YDC:
@@ -82,18 +107,12 @@ class YDC:
         data = pd.read_json(real_path, lines=True)
         return real_path, data
 
-    def get_zip_codes(self):
-        """Population the zip code column."""
-        self.get_us_zip_codes()
-        self.get_canada_zip_codes()
-        self.get_scotland_zip_codes()
+    def get_restaurant_type(self):
+        """Count the categories and save under a new column restaurant type."""
+        restaurant_type = self.file_data['business'].categories.map(Counter)
+        self.file_data['business']['restaurant_type'] = restaurant_type
 
-    def get_us_zip_codes(self):
-        """Look for zip codes from the United States."""
-        bus = self.file_data['business']
-        bus['zip_code'] = bus.full_address.str.extract(r"(\d{5})", expand=True)
-
-    def get_canada_zip_codes(self):
+    def get_zip_codes_canada(self):
         """Look for zip codes from Canada."""
         bus = self.file_data['business']
         mask = bus.zip_code.isnull()
@@ -101,10 +120,21 @@ class YDC:
                                                    expand=True)
         bus.loc[mask, 'zip_code'] = codes[0]
 
-    def get_scotland_zip_codes(self):
+    def get_zip_codes_scotland(self):
         """Look for zip codes from Scotland."""
         bus = self.file_data['business']
         mask = bus.zip_code.isnull()
         codes = bus[mask].full_address.str.extract(r"(\w\w\d+\s?\d?(\w\w)?$)",
                                                    expand=True)
         bus.loc[mask, 'zip_code'] = codes[0]
+
+    def get_zip_codes_usa(self):
+        """Look for zip codes from the United States."""
+        bus = self.file_data['business']
+        bus['zip_code'] = bus.full_address.str.extract(r"(\d{5})", expand=True)
+
+    def get_zip_codes(self):
+        """Population the zip code column."""
+        self.get_zip_codes_usa()
+        self.get_zip_codes_canada()
+        self.get_zip_codes_scotland()
