@@ -5,6 +5,13 @@ K2 Data Science Bootcamp Package - API
     :maxdepth: 2
 
 
+chronic_disease
+---------------
+.. automodule:: chronic_disease
+    :members:
+    :show-inheritance:
+    :synopsis: Module related to analyzing the CDC chronic disease dataset.
+
 nyc_mta
 -------
 .. automodule:: nyc_mta
@@ -18,3 +25,10 @@ plotting
     :members:
     :show-inheritance:
     :synopsis: Module with plotting examples.
+
+yelp
+----
+.. automodule:: yelp
+    :members:
+    :show-inheritance:
+    :synopsis: Module related to analyzing the Yelp Dataset Challenge.
