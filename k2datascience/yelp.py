@@ -7,14 +7,13 @@
 """
 
 from collections import Counter
+import datetime as dt
 import logging
-import os
 import os.path as osp
-from typing import Dict, Tuple
+from typing import Tuple
 
-import matplotlib.pyplot as plt
+from dateutil import parser
 import pandas as pd
-import seaborn as sns
 
 
 log_format = ('%(asctime)s  %(levelname)8s  -> %(name)s <- '
@@ -34,7 +33,7 @@ data_files = (
 )
 
 
-def convert_boolean(series):
+def convert_boolean(series: pd.Series) -> pd.Series:
     """Convert Pandas Series boolean values True to 1 and False to 0.
 
     :param pandas.Series series: Pandas Series to be converted
@@ -53,6 +52,9 @@ def convert_boolean(series):
                 conversion(v)
             elif isinstance(v, bool):
                 conversion_dict[k] = v * 1
+            else:
+                conversion_dict.pop(k)
+                conversion_dict[f'{k}_{v}'] = 1
         return conversion_dict
 
     return series.map(conversion)
@@ -93,6 +95,39 @@ class YDC:
             self.file_data[file_type] = data
             logging.info(f'File Loaded: {osp.basename(path)}')
 
+    def calc_open_hours(self):
+        """Populate the week day columns with open hours."""
+        def daily_hours(row, day):
+            """Calculate the number of hours a business in open each day.
+            
+            :param row: data frame index row
+            :param str day: day of the week
+            :return: number of hours business was open for a given day
+            :rtype: int
+            """
+            midnight = parser.parse('00:00')
+            tomorrow = midnight + dt.timedelta(days=1)
+
+            try:
+                hours = row['hours'][day]
+                times = {k: parser.parse(v) for k, v in hours.items()}
+                tot_hours = (times['close'] - times['open']).seconds / 3600
+
+                if times['close'].time() < times['open'].time():
+                    tot_hours = ((times['close'] - midnight
+                                  + tomorrow - times['open']).seconds / 3600)
+
+            except KeyError:
+                tot_hours = 0
+
+            return tot_hours
+
+        days = ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+                'Friday', 'Saturday')
+        bus = self.file_data['business']
+        for day in days:
+            bus[day] = bus.apply(lambda x: daily_hours(x, day), axis=1)
+
     def data_files(self, descriptor: str):
         """Return path to data file for a specific descriptor.
 
@@ -109,8 +144,22 @@ class YDC:
 
     def get_restaurant_type(self):
         """Count the categories and save under a new column restaurant type."""
-        restaurant_type = self.file_data['business'].categories.map(Counter)
-        self.file_data['business']['restaurant_type'] = restaurant_type
+        def restaurant_type(categories):
+            if 'Restaurants' in categories:
+                types = Counter(categories)
+                types.pop('Restaurants', None)
+                all_types.extend([x for x in types.keys()
+                                  if x not in all_types])
+                return types
+            else:
+                return 'remove'
+
+        all_types = []
+        find_types = self.file_data['business'].categories.map(restaurant_type)
+        all_restaurants = {x: 0 for x in all_types}
+        find_types = find_types.map(
+            lambda x: {**all_restaurants, **x} if isinstance(x, dict) else x)
+        self.file_data['business']['restaurant_type'] = find_types
 
     def get_zip_codes_canada(self):
         """Look for zip codes from Canada."""
@@ -138,3 +187,4 @@ class YDC:
         self.get_zip_codes_usa()
         self.get_zip_codes_canada()
         self.get_zip_codes_scotland()
+
