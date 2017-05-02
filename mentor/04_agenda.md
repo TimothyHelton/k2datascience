@@ -14,9 +14,8 @@
 
 ---
 ### <a name="ds_conversation"></a> Data Science Conversation (10 minutes)
-TODO
 - [Simple Time Series Forecasting Models to Test So That You Don't Fool Yourself](http://machinelearningmastery.com/simple-time-series-forecasting-models/)
-    - Expanding Window Model
+    - [Expanding Window Model](https://github.com/TimothyHelton/k2datascience/blob/master/notebooks/Time_Series_Forcasting.ipynb)
 
 [Table of Contents](#toc)
 
@@ -35,9 +34,9 @@ TODO
 
 #### Unit 6: Getting and Cleaning Data
 - NYC MTA Turnstile Dataset
-    - Reviewed Solution
+    - Complete: Submitted for feedback
 - yelp Dataset
-    - TODO Begin
+    - Complete: Submitted for feedback
 
 [Table of Contents](#toc)
 
@@ -51,7 +50,7 @@ TODO
     - [Initial Investigation](https://github.com/TimothyHelton/k2datascience/blob/master/notebooks/US_Chronic_Disease_Indicators.ipynb)
     - Most promising attribute of this dataset would be exploring illnesses 
     based on geographical location.
-    - Probably not a project title.
+    - Probably not a project topic.
 
 TODO
 - Pull Historical Data to create a unique dataset
