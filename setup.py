@@ -48,6 +48,7 @@ setup(
         'python-dateutil',
         'requests',
         'seaborn',
+        'simplejson',
         ],
     package_dir={'k2datascience': 'k2datascience'},
     include_package_data=True,

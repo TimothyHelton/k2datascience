@@ -14,6 +14,7 @@ from typing import Tuple
 
 from dateutil import parser
 import pandas as pd
+import simplejson
 
 
 log_format = ('%(asctime)s  %(levelname)8s  -> %(name)s <- '
@@ -27,7 +28,7 @@ data_dir = osp.realpath(osp.join(current_dir, '..', 'data', 'yelp'))
 data_files = (
     'business',
     # 'checkin',
-    # 'review',
+    'review',
     # 'tip',
     # 'user',
 )
@@ -131,7 +132,7 @@ class YDC:
     def data_files(self, descriptor: str):
         """Return path to data file for a specific descriptor.
 
-        :param str descriptor:
+        :param str descriptor: key word in data file (ex. business)
         :returns: full path to data file
         :rtype: str
         """
@@ -139,8 +140,24 @@ class YDC:
         extension = '.json'
         real_path = osp.realpath(osp.join(self.data_dir,
                                           f'{prefix}{descriptor}{extension}'))
-        data = pd.read_json(real_path, lines=True)
+
+        if descriptor == 'review':
+            data_lines = []
+            with open(real_path, 'r') as f:
+                for line in f:
+                    data_lines.append(simplejson.loads(line))
+            data = pd.DataFrame(data_lines)
+        else:
+            data = pd.read_json(real_path, lines=True)
         return real_path, data
+
+    def get_avg_stars(self):
+        """Add the average customer review to the business data frame."""
+        review = self.file_data['review']
+        avg_stars = review.groupby('business_id')['stars'].mean().reset_index()
+        avg_stars.columns = ['business_id', 'stars_avg']
+        self.file_data['business'] = self.file_data['business'].merge(
+            avg_stars, how='left', on='business_id')
 
     def get_restaurant_type(self):
         """Count the categories and save under a new column restaurant type."""
