@@ -15,7 +15,7 @@
 ---
 ### <a name="ds_conversation"></a> Data Science Conversation (10 minutes)
 - [Simple Time Series Forecasting Models to Test So That You Don't Fool Yourself](http://machinelearningmastery.com/simple-time-series-forecasting-models/)
-    - [Expanding Window Model](https://github.com/TimothyHelton/k2datascience/blob/master/notebooks/Time_Series_Forcasting.ipynb)
+    - [Expanding Window and Rolling Window Forecast Models](https://github.com/TimothyHelton/k2datascience/blob/master/notebooks/Time_Series_Forcasting.ipynb)
 
 [Table of Contents](#toc)
 
@@ -81,9 +81,8 @@ TODO go through the question epicycle for this idea
 
 ---
 ### <a name="notes"></a> Notes
-- Next Week's Data Science Conversation:
-    - [Simple Time Series Forecasting Models to Test So That You Don't Fool Yourself](http://machinelearningmastery.com/simple-time-series-forecasting-models/)
-        - Rolling Window Forecast Model
+
+    
 
 [Table of Contents](#toc)
 
