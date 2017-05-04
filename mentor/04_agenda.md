@@ -22,16 +22,20 @@
 
 ---
 ### <a name="status_update"></a> Status Update
+#### General
 - Transferred to new group at work
     - Software Developer full time
-    
-- Update website About page
+        - C++
+        - Python
+        
+#### Website
+- Update About page
 
 #### Unit 6: Getting and Cleaning Data
 - NYC MTA Turnstile Dataset
-    - Complete: Submitted for feedback
+    - Complete
 - yelp Dataset
-    - Complete: Submitted for feedback
+    - Complete
 
 #### Unit 7: Statistical Inference
 - Begun lectures
