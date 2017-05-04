@@ -25,18 +25,16 @@
 - Transferred to new group at work
     - Software Developer full time
     
-TODO
 - Update website About page
-    - Add thesis information
-    - Talk about work
-    - Make it more like a blog
-    - I'm the guy to bring big data to engineering designs
 
 #### Unit 6: Getting and Cleaning Data
 - NYC MTA Turnstile Dataset
     - Complete: Submitted for feedback
 - yelp Dataset
     - Complete: Submitted for feedback
+
+#### Unit 7: Statistical Inference
+- Begun lectures
 
 [Table of Contents](#toc)
 
