@@ -1,6 +1,6 @@
 # Mentor Session 04 Agenda
 
-#### May 4, 7:00am (45 Minutes)
+#### May 11, 7:00am (45 Minutes)
 
 
 [Data Science Conversation](#ds_converstation)
@@ -29,7 +29,7 @@
         - Python
         
 #### Website
-- Update About page
+- Update [About page](https://timothyhelton.github.io/about.html)
 
 #### Unit 6: Getting and Cleaning Data
 - NYC MTA Turnstile Dataset
@@ -38,7 +38,8 @@
     - Complete
 
 #### Unit 7: Statistical Inference
-- Begun lectures
+- Completed lectures
+- [Udacity Statistics Course](https://classroom.udacity.com/courses/st101)
 
 [Table of Contents](#toc)
 
@@ -47,39 +48,61 @@
 ### <a name="technical_questions"></a> Technical Questions 
 
 #### Project Ideas
-- Investigated Dataset:
-    - [U.S. Chronic Disease Indicators (CDI)](https://catalog.data.gov/dataset/u-s-chronic-disease-indicators-cdi-e50c9)
-    - [Initial Investigation](https://github.com/TimothyHelton/k2datascience/blob/master/notebooks/US_Chronic_Disease_Indicators.ipynb)
-    - Most promising attribute of this dataset would be exploring illnesses 
-    based on geographical location.
-    - Probably not a project topic.
 
-TODO
-- Pull Historical Data to create a unique dataset
-    - Track medical device companies web pages from history and look at what
-     they promised over time.
-        - Identify medical device companies
-        - Mask IP to avail getting blacklisted
-        - Try to get into thousands of companies
-        - Look at crunch base 
-    - [Big Query](https://cloud.google.com/bigquery/what-is-bigquery)
-    - [Facebook](https://developers.facebook.com/docs/graph-api)
+##### [U.S. Chronic Disease Indicators (CDI)](https://catalog.data.gov/dataset/u-s-chronic-disease-indicators-cdi-e50c9)
+- [Initial Investigation](https://github.com/TimothyHelton/k2datascience/blob/master/notebooks/US_Chronic_Disease_Indicators.ipynb)
+- Most promising attribute of this dataset would be exploring illnesses based 
+on geographical location.
+- **Probably not a project topic**
+
+##### Pull Historical Medical Device Data
+- Track medical device companies web pages from history and look at what they
+promised over time.
+    - Identify medical device companies
+    - Mask IP to avail getting blacklisted
+    - Try to get into thousands of companies
+    - Look at crunch base 
+- [Big Query](https://cloud.google.com/bigquery/what-is-bigquery)
+- [Facebook](https://developers.facebook.com/docs/graph-api)
 - [FDA Recalls](https://www.fda.gov/MedicalDevices/Safety/ListofRecalls/default.htm)
 - [Way Back Machine Medical Devices](http://wayback.archive-it.org/7993/20170110233525/http://www.fda.gov/MedicalDevices/DeviceRegulationandGuidance/Databases/default.htm)
 - [US National Library of Medicine](https://accessgudid.nlm.nih.gov/)
 
-TODO go through the question epicycle for this idea 
-- What qualities result in high employee retention?
-    - Scrap LinkedIn, Indeed, GlassDoor, Twitter and Facebook
-    - Build dataset
-    - Explore traits that result in "employee happiness"
-    - After setting grading criteria apply the metric to data science 
-    focused companies
-    - If interested in any of the "good" companies send the study to data 
-    science contact
-    
+##### What are ideal places to settle down and plant roots?
+- Begin with a job search based on occupation for each state.
+- scrape indeed.com **Large amounts of data are available on this site**
+    - Job Postings
+    - Company Reviews
+    - Salary Information
+    - Individuals Resumes
+- Search for a second occupation (significant other) for each state.
+- Create an interactive map of the United States colored by available jobs 
+that may be filtered for the first occupation, the second occupation or both.
+- Use time series data of job postings to forecast if states are on the rise
+or decline for the occupations of interest.
+    - Was hoping to use the [Way Back Machine](https://web.archive.org/), but
+    indeed.com does not allow archiving.
+- Chose a subset of states to pursue further.
+- Identify potential cities
+- Evaluate home prices in perspective cities.
+    - scrape Zillow
+        - basic search criteria
+- Evaluate school districts
+    - [School Digger](https://www.schooldigger.com/)
+    - [Great Schools](http://www.greatschools.org/)
+- **Most of these ideas are just gathering data.  What are ways to add 
+"Data Science" into this project?**
+     
 [Table of Contents](#toc)
 
+##### Finance?
+- Buy, sell, trade...
+
+##### Real Estate?
+- Use indeed.com and Zillow.com to find locations for real estate investors 
+to target.
+
+##### Sports?
 
 ---
 ### <a name="notes"></a> Notes
