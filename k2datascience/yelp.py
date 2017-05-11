@@ -67,7 +67,7 @@ class YDC:
     :Attributes:
     
     **data_dir**: *str* path to directory containing data files
-    **file_data**: *Dict[str, pandas.DataFrame]* data frames of the loaded \ 
+    **file_data**: *Dict[str, pandas.DataFrame]* data frames of the loaded \
         data files
     **file_paths**: *Dict[str, str]* paths to the data files
     **file_types**: *Tuple(str)* names of the files data files to be loaded

@@ -12,6 +12,14 @@ chronic_disease
     :show-inheritance:
     :synopsis: Module related to analyzing the CDC chronic disease dataset.
 
+roots
+-----
+.. automodule:: roots
+    :members:
+    :show-inheritance:
+    :synopsis: Module related to analyzing web data to identify potential
+        where to live.
+
 nyc_mta
 -------
 .. automodule:: nyc_mta

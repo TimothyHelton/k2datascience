@@ -92,7 +92,7 @@ class TurnstileData:
         """Filter data to find entries and exits per station.
         
         .. note:: Data will always be filtered by station, date, week and \ 
-        weekday.
+            weekday.
         
         :param bool control_area: if True the data will be additionally \ 
             filtered based on control area
