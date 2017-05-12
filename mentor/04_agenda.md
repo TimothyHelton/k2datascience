@@ -93,8 +93,6 @@ or decline for the occupations of interest.
 - **Most of these ideas are just gathering data.  What are ways to add 
 "Data Science" into this project?**
      
-[Table of Contents](#toc)
-
 ##### Finance?
 - Buy, sell, trade...
 
@@ -106,10 +104,26 @@ to target.
 
 ##### Weather?
 
+[Table of Contents](#toc)
+
 ---
 ### <a name="notes"></a> Notes
+- Investigate alternate scraping sources for indeed.com
+    - Look into [Common Crawl](http://commoncrawl.org/)
 
-    
+- Using snapshots of indeed.com may be acceptable
+    - Overlaying multiple descriptive statistics could be interesting.
+        - Finding the optimum location for two people in lieu of one.
+    - Think of cities as providing features, and people add providing features.
+    - Matching algorithm to optimize pairings.
+        - Classes
+            - City
+            - Person
+
+#### Tasks
+1. Create storage schema
+1. Find [KDnuggets](http://www.kdnuggets.com/) article to discuss next week
+    1. Do not refactor it.
 
 [Table of Contents](#toc)
 
