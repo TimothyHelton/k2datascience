@@ -47,6 +47,8 @@ class HR:
             'salary',
         ]
         self.label_size = 14
+        self.pop_tot = self.data.shape[0]
+        self.salaries = ('low', 'medium', 'high')
         self.sup_title_size = 24
         self.title_size = 20
         self._p_left_company = None
@@ -91,6 +93,44 @@ class HR:
         else:
             plt.show()
 
+    def calc_hours_stats(self):
+        """Hours worked statistics.
+        
+        :returns: average hours worked variance and standard deviation
+        :rtype: tuple
+        """
+        return self.data.hours_avg.var(), self.data.hours_avg.std()
+
+    def calc_p_hours_salary(self):
+        """Probability average hours exceeds 2 std for each salary.
+        
+        :returns: probability employees work hours exceeds two standard \
+            deviations for the given their salary.
+        :rtype: pd.DataFrame
+        """
+        p_hours_salary = pd.DataFrame(columns=pd.Index(data=self.salaries,
+                                                       name='Salaries'))
+        for pay in self.salaries:
+            hr_hours = self.data.hours_avg
+            hr_2_std = hr_hours.mean() + 2 * hr_hours.std()
+
+            hours_n = self.data.query(f'hours_avg > '
+                                      f'{hr_2_std}').hours_avg.count()
+            p_hours = hours_n / self.pop_tot
+
+            p_salary = (self.data.query(f'salary == "{pay}"').salary.count()
+                        / self.pop_tot)
+
+            p_salary_hours = (
+                self.data.query(f'salary == "{pay}"'
+                                f'& hours_avg > {hr_2_std}').hours_avg.count()
+                / hours_n)
+
+            p_hours_salary[pay] = [p_salary_hours * p_hours / p_salary]
+            p_hours_salary.index = ['hours_over_2_std']
+
+        return p_hours_salary
+
     def calc_p_left_company(self):
         """Probability an employee left the company."""
         self._p_left_company = self.data.left.mean()
@@ -99,8 +139,20 @@ class HR:
         """Probability an employee left and experienced an accident."""
         mask = 'left == 1 & accident == 1'
         self._p_left_and_accident = (
-            self.data.query(mask).left.count() / self.data.size
+            self.data.query(mask).left.count() / self.pop_tot
         )
+
+    def calc_p_salary_promotion(self):
+        """Probability of promotion given a salary. """
+        cols = ('candidates', 'promoted', 'P_promotion')
+        promotions = pd.DataFrame(index=self.salaries)
+        for pay in self.salaries:
+            candidates = self.data.query(f'salary == "{pay}"').salary.count()
+            promoted = self.data.query(f'salary == "{pay}" '
+                                       f'& promotion_5yr == 1').salary.count()
+            promotions[pay] = [candidates, promoted, promoted / candidates]
+        promotions.columns = cols
+        return promotions
 
     def calc_p_work_accident(self):
         """Probability an employee experienced a work accident."""
@@ -121,6 +173,33 @@ class HR:
             data = self.data.query('left == 0').satisfaction
 
         return data.quantile(percentile)
+
+    def calc_satisfaction_salary(self):
+        """Compare job satisfaction related to salary.
+        
+        :returns: satisfaction means for all available salaries
+        :rtype: pd.DataFrame
+        """
+        return self.data.groupby('salary').satisfaction.mean()
+
+    def calc_satisfaction_random_sample(self, n):
+        """Calculate the satisfaction mean from a sample size of n.
+        
+        :returns: satisfaction mean from a sample size of n
+        :rtype: float
+        """
+        sample = self.data.sample(n=n)
+        return sample.satisfaction.mean()
+
+    def compare_satisfaction_variance(self):
+        """Compare variance of job satisfaction between ex and current.
+        
+        :returns: variance for ex and current employees
+        :rtype: tuple
+        """
+        current = self.data.query('left == 0').satisfaction.var()
+        ex = self.data.query('left == 1').satisfaction.var()
+        return ex, current
 
     def compare_satisfaction(self):
         """Compare job satisfaction between those who left and who stayed."""
