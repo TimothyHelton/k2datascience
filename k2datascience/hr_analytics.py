@@ -48,6 +48,7 @@ class HR:
         ]
         self.label_size = 14
         self.pop_tot = self.data.shape[0]
+        self.p_salary = None
         self.salaries = ('low', 'medium', 'high')
         self.sup_title_size = 24
         self.title_size = 20
@@ -108,6 +109,9 @@ class HR:
             deviations for the given their salary.
         :rtype: pd.DataFrame
         """
+        if self.p_salary is None:
+            self.calc_p_salary()
+
         p_hours_salary = pd.DataFrame(columns=pd.Index(data=self.salaries,
                                                        name='Salaries'))
         for pay in self.salaries:
@@ -118,22 +122,16 @@ class HR:
                                       f'{hr_2_std}').hours_avg.count()
             p_hours = hours_n / self.pop_tot
 
-            p_salary = (self.data.query(f'salary == "{pay}"').salary.count()
-                        / self.pop_tot)
-
             p_salary_hours = (
                 self.data.query(f'salary == "{pay}"'
                                 f'& hours_avg > {hr_2_std}').hours_avg.count()
                 / hours_n)
 
-            p_hours_salary[pay] = [p_salary_hours * p_hours / p_salary]
+            p_hours_salary[pay] = [p_salary_hours * p_hours
+                                   / self.p_salary[pay]]
             p_hours_salary.index = ['hours_over_2_std']
 
         return p_hours_salary
-
-    def calc_p_left_company(self):
-        """Probability an employee left the company."""
-        self._p_left_company = self.data.left.mean()
 
     def calc_p_left_and_accident(self):
         """Probability an employee left and experienced an accident."""
@@ -142,8 +140,43 @@ class HR:
             self.data.query(mask).left.count() / self.pop_tot
         )
 
+    def calc_p_left_company(self):
+        """Probability an employee left the company."""
+        left_n = self.data.query('left == 1').left.count()
+        self._p_left_company = left_n / self.pop_tot
+
+    def calc_p_left_salary(self):
+        """Probability employee left given a specific salary."""
+        p_left_salary = pd.DataFrame(columns=pd.Index(data=self.salaries,
+                                                      name='Salaries'))
+        for pay in self.salaries:
+            p_salary_left_n = self.data.query(f'salary == "{pay}"'
+                                              f'& left == 1').left.count()
+            p_salary_left = (p_salary_left_n
+                             / self.data.query('left == 1').left.count())
+
+            p_left_salary[pay] = [p_salary_left * self.p_left_company
+                                  / self.p_salary[pay]]
+        return p_left_salary
+
+    def calc_p_salary(self):
+        """Probability of having a given salary.
+        
+        :returns: probability of having a given salary.
+        :rtype: dict
+        """
+        self.p_salary = {}
+        for pay in self.salaries:
+            prob = (self.data.query(f'salary == "{pay}"').salary.count()
+                    / self.pop_tot)
+            self.p_salary[pay] = prob
+
     def calc_p_salary_promotion(self):
-        """Probability of promotion given a salary. """
+        """Probability of promotion given a salary.
+        
+        :return: probability of receiving a promotion based on salary.
+        :rtype: pd.DataFrame
+        """
         cols = ('candidates', 'promoted', 'P_promotion')
         promotions = pd.DataFrame(index=self.salaries)
         for pay in self.salaries:
