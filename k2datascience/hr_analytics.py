@@ -49,15 +49,21 @@ class HR:
             'salary',
         ]
         self.label_size = 14
-        self.normal_vars = ('satisfaction', 'evaluation')
+        self.normal_vars = ('satisfaction', 'evaluation', 'hours_avg')
         self.pop_tot = self.data.shape[0]
         self.p_salary = None
         self.salaries = ('low', 'medium', 'high')
         self.sup_title_size = 24
         self.title_size = 20
+        self._norm_stats = None
         self._p_left_company = None
         self._p_left_and_accident = None
         self._p_work_accident = None
+
+    @property
+    def norm_stats(self):
+        self.calc_gaussian_stats()
+        return self._norm_stats
 
     @property
     def p_left_company(self):
@@ -145,6 +151,43 @@ class HR:
         else:
             plt.show()
 
+    def gaussian_plot(self, normal_overlay=False, save=False):
+        """Create histogram plots for Gaussian variables.
+        
+        :param bool normal_overlay: if True a Gaussian curve will be overlaid \
+            the histogram for each variable
+        :param bool save: if True the plot will be saved to disk. 
+        """
+        if self._norm_stats is None:
+            self.calc_gaussian_stats()
+        fig = plt.figure(f'Gaussian Variables', figsize=(10, 10),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (3, 1)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+        ax1 = plt.subplot2grid((rows, cols), (1, 0))
+        ax2 = plt.subplot2grid((rows, cols), (2, 0))
+
+        for var, ax in zip(self.normal_vars, (ax0, ax1, ax2)):
+            self.data[var].plot(
+                kind='hist', alpha=0.5, bins=50, edgecolor='black',
+                normed=True,
+                title=' '.join([x.title() for x in var.split('_')]), ax=ax)
+            if normal_overlay:
+                rv = stats.norm(loc=self.data[var].mean(),
+                                scale=self.data[var].std())
+                x = np.linspace(rv.ppf(0.01), rv.ppf(0.99), 100)
+                ax.plot(x, rv.pdf(x), color='indianred', linestyle='-',
+                        linewidth=2)
+
+        plt.suptitle('Gaussian Variables',
+                     fontsize=self.sup_title_size, y=1.08)
+        plt.tight_layout()
+
+        if save:
+            plt.savefig('data_distributions.png')
+        else:
+            plt.show()
+
     def calc_bernoulli_variance(self):
         """Calculate Bernoulli variables variance.
 
@@ -152,6 +195,14 @@ class HR:
         :rtype: pd.DataFrame
         """
         return self.data.loc[:, self.bernoulli_vars].var()
+
+    def calc_gaussian_stats(self):
+        """Calculate mean and variance for the Gaussian variables."""
+        self._norm_stats = pd.DataFrame(index=['mean', 'variance'])
+        for var in self.normal_vars:
+            mean = self.data[var].mean()
+            variance = self.data[var].var()
+            self._norm_stats[var] = [mean, variance]
 
     def calc_hours_stats(self):
         """Hours worked statistics.
