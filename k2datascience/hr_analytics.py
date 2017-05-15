@@ -13,6 +13,7 @@ import os.path as osp
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy import stats
 import seaborn as sns
 
 
@@ -33,6 +34,7 @@ class HR:
     :Attributes:
     """
     def __init__(self, data=data_file):
+        self.bernoulli_vars = ('accident', 'left', 'promotion_5yr')
         self.data = pd.read_csv(data)
         self.data.columns = [
             'satisfaction',
@@ -47,6 +49,7 @@ class HR:
             'salary',
         ]
         self.label_size = 14
+        self.normal_vars = ('satisfaction', 'evaluation')
         self.pop_tot = self.data.shape[0]
         self.p_salary = None
         self.salaries = ('low', 'medium', 'high')
@@ -75,8 +78,56 @@ class HR:
         return (f'HR('
                 f'data={self.data})')
 
+    def bernoulli_plot(self, save=False):
+        """Plot PMF and CDF for Bernoulli variables.
+        
+        :param bool save: if True the plot will be saved to disk
+        """
+        ber = pd.DataFrame(list(range(self.pop_tot)), columns=['k'])
+        probs = self.calc_p_bernoulli()
+
+        for var in self.bernoulli_vars:
+            dist = stats.binom(n=self.pop_tot, p=probs[var])
+            ber[f'pmf_{var}'] = ber.k.apply(lambda x: dist.pmf(x))
+            ber[f'cdf_{var}'] = ber.k.apply(lambda x: dist.cdf(x))
+
+        fig = plt.figure('Bernoulli Plot', figsize=(10, 7),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (2, 1)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+        ax1 = plt.subplot2grid((rows, cols), (1, 0))
+
+        mask = [x for x in ber.columns if 'pmf' in x]
+        ber.loc[:, mask].plot(ax=ax0)
+
+        ax0.set_title('Probability Mass Functions', fontsize=self.title_size)
+        ax0.set_xlabel('Employees')
+        ax0.set_ylabel('Probability')
+        ax0.legend(self.bernoulli_vars)
+
+        mask = [x for x in ber.columns if 'cdf' in x]
+        ber.loc[:, mask].plot(ax=ax1)
+
+        ax1.set_title('Cumulative Distribution Functions',
+                      fontsize=self.title_size)
+        ax1.set_xlabel('Employees')
+        ax1.set_ylabel('Probability')
+        ax1.legend(self.bernoulli_vars)
+
+        plt.suptitle('Bernoulli Distributions',
+                     fontsize=self.sup_title_size, y=1.08)
+        plt.tight_layout()
+
+        if save:
+            plt.savefig('data_distributions.png')
+        else:
+            plt.show()
+
     def box_plot(self, save=False):
-        """Create box plot of quantitative fields."""
+        """Create box plot of quantitative fields.
+        
+        :param bool save: if True the plot will be saved to disk
+        """
         plt.rcParams['xtick.labelsize'] = 14
         fig = plt.figure('Distribution Plot', figsize=(10, 5),
                          facecolor='white', edgecolor='black')
@@ -94,6 +145,14 @@ class HR:
         else:
             plt.show()
 
+    def calc_bernoulli_variance(self):
+        """Calculate Bernoulli variables variance.
+
+        :returns: variance for each Bernoulli variable        
+        :rtype: pd.DataFrame
+        """
+        return self.data.loc[:, self.bernoulli_vars].var()
+
     def calc_hours_stats(self):
         """Hours worked statistics.
         
@@ -101,6 +160,35 @@ class HR:
         :rtype: tuple
         """
         return self.data.hours_avg.var(), self.data.hours_avg.std()
+
+    def calc_p_bernoulli_k(self, k=3500, cumulative=False):
+        """Probability of k positive outcomes for Bernoulli variables.
+        
+        :param int k: number of positive outcomes
+        :param bool cumulative: if True calculate the cumulative probability \ 
+            of k positive outcomes
+        :returns: probability of k positive outcomes
+        :rtype: pd.DataFrame
+        """
+        p_bernoulli = self.calc_p_bernoulli()
+        p_k = pd.DataFrame(columns=pd.Index(data=self.bernoulli_vars,
+                                            name=f'p_{k}'))
+        for var in self.bernoulli_vars:
+            dist = stats.binom(n=self.pop_tot, p=p_bernoulli[var])
+            if cumulative:
+                prob = dist.cdf(k)
+            else:
+                prob = dist.pmf(k)
+            p_k[var] = [prob]
+        return p_k
+
+    def calc_p_bernoulli(self):
+        """Probability of True for Bernoulli variables.
+        
+        :returns: probability of success for each Bernoulli variable
+        :rtype: pd.DataFrame
+        """
+        return self.data.loc[:, self.bernoulli_vars].mean()
 
     def calc_p_hours_salary(self):
         """Probability average hours exceeds 2 std for each salary.
