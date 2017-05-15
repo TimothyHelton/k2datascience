@@ -22,6 +22,9 @@ TODO
 
 ---
 ### <a name="status_update"></a> Status Update
+- Pandas class
+    - Next mentor session will be **June 1**
+
 #### Unit 7: Statistical Inference
 - Human Resources Analytics
 - [Udacity Statistics Course](https://classroom.udacity.com/courses/st101)
