@@ -12,13 +12,12 @@ chronic_disease
     :show-inheritance:
     :synopsis: Module related to analyzing the CDC chronic disease dataset.
 
-roots
------
-.. automodule:: roots
+hr_analytics
+------------
+.. automodule:: hr_analytics
     :members:
     :show-inheritance:
-    :synopsis: Module related to analyzing web data to identify potential
-        where to live.
+    :synopsis: Module related to analyzing the Human Resources dataset.
 
 nyc_mta
 -------
@@ -33,6 +32,14 @@ plotting
     :members:
     :show-inheritance:
     :synopsis: Module with plotting examples.
+
+roots
+-----
+.. automodule:: roots
+    :members:
+    :show-inheritance:
+    :synopsis: Module related to analyzing web data to identify potential
+        where to live.
 
 yelp
 ----
