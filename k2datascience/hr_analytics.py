@@ -50,6 +50,7 @@ class HR:
         ]
         self.label_size = 14
         self.normal_vars = ('satisfaction', 'evaluation', 'hours_avg')
+        self.poisson_vars = ('projects_qty', 'service_qty')
         self.pop_tot = self.data.shape[0]
         self.p_salary = None
         self.salaries = ('low', 'medium', 'high')
@@ -416,3 +417,19 @@ class HR:
         plt.tight_layout()
 
         return sat_pct
+
+    def poisson_distributions(self):
+        """Create distributions for the Poisson variables."""
+        poisson = self.data.loc[:, ['salary', *self.poisson_vars]]
+        poisson_means = poisson.groupby('salary').mean()
+        poisson_means.columns = [f'{x}_mean' for x in poisson_means.columns]
+        poisson_dists = poisson_means.applymap(lambda x: stats.poisson(x))
+        poisson_dists.columns = [x.replace('_mean', '_poisson')
+                                 for x in poisson_dists.columns]
+        poisson = pd.concat([poisson_means, poisson_dists], axis=1)
+        for var in self.poisson_vars:
+            mask = [x for x in poisson.columns if var in x]
+            poisson[f'p_{var}'] = poisson[mask].apply(
+                lambda x: x[1].cdf(x[0]), axis=1)
+
+        return poisson
