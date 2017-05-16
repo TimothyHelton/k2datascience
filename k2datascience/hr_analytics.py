@@ -35,6 +35,7 @@ class HR:
     """
     def __init__(self, data=data_file):
         self.bernoulli_vars = ('accident', 'left', 'promotion_5yr')
+        self.central_limit_vars = ('satisfaction', 'evaluation')
         self.data = pd.read_csv(data)
         self.data.columns = [
             'satisfaction',
@@ -126,7 +127,7 @@ class HR:
         plt.tight_layout()
 
         if save:
-            plt.savefig('data_distributions.png')
+            plt.savefig('bernoulli.png')
         else:
             plt.show()
 
@@ -149,6 +150,40 @@ class HR:
 
         if save:
             plt.savefig('data_distributions.png')
+        else:
+            plt.show()
+
+    def central_limit_plot(self, save=False):
+        """Create a Central Limit histogram plot.
+        
+        :param bool save: if True the plot will be saved to disk
+        """
+        fig = plt.figure('Central Limit Plot', figsize=(10, 10),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (4, 1)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+        ax1 = plt.subplot2grid((rows, cols), (1, 0))
+        ax2 = plt.subplot2grid((rows, cols), (2, 0))
+        ax3 = plt.subplot2grid((rows, cols), (3, 0))
+
+        for sample_n, axes in zip((10, 100, 500, 1000), (ax0, ax1, ax2, ax3)):
+            cl = self.central_limit_distributions(sample_n)
+            cl.loc[:, self.central_limit_vars].plot(
+                kind='hist', alpha=0.5, bins=75, edgecolor='black',
+                normed=True, title=f'{sample_n} Samples', ax=axes
+            )
+            for var, color in zip(self.central_limit_vars, ('r', 'k')):
+                rv = stats.norm(loc=cl[var].mean(), scale=cl[var].std())
+                x = np.linspace(rv.ppf(0.01), rv.ppf(0.99), 100)
+                axes.plot(x, rv.pdf(x), color=color, linestyle='-',
+                          linewidth=2)
+
+        plt.suptitle('Central Limit Theorem',
+                     fontsize=self.sup_title_size, y=1.08)
+        plt.tight_layout()
+
+        if save:
+            plt.savefig('central_limit.png')
         else:
             plt.show()
 
@@ -185,7 +220,7 @@ class HR:
         plt.tight_layout()
 
         if save:
-            plt.savefig('data_distributions.png')
+            plt.savefig('gaussian.png')
         else:
             plt.show()
 
@@ -196,6 +231,30 @@ class HR:
         :rtype: pd.DataFrame
         """
         return self.data.loc[:, self.bernoulli_vars].var()
+
+    def central_limit_distributions(self, n):
+        """Generate central limit distributions.
+        
+        :param int n: sample size
+        :returns: satisfaction and evaluation means for 1000 distribution \
+            of sample size n
+        :rtype: pd.DataFrame
+        """
+        cl = pd.DataFrame(list(range(1000)), columns=['sample_n'])
+        cl['satisfaction'] = cl.sample_n.map(
+            lambda x: self.calc_satisfaction_random_sample(n))
+        cl['evaluation'] = cl.sample_n.map(
+            lambda x: self.calc_evaluation_random_sample(n))
+        return cl
+
+    def calc_evaluation_random_sample(self, n):
+        """Calculate the evaluation mean from a sample size of n.
+
+        :returns: evaluation mean from a sample size of n
+        :rtype: float
+        """
+        sample = self.data.sample(n=n)
+        return sample.evaluation.mean()
 
     def calc_gaussian_stats(self):
         """Calculate mean and variance for the Gaussian variables."""
