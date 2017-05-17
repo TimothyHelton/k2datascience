@@ -131,6 +131,26 @@ class HR:
         else:
             plt.show()
 
+    @staticmethod
+    def bootstrap(variable, n, sets):
+        """Bootstrap the median of given variable.
+        
+        :param pd.Series variable: variable to be bootstrapped 
+        :param int n: number of samples per set
+        :param int sets: number of sets
+        :return: 
+        """
+        median_values = []
+        for _ in range(sets):
+            median_values.append(variable.sample(n=n, replace=True).median())
+        boot = np.array(median_values)
+        return {
+            'boot_median': boot.mean(),
+            'actual_median': variable.median(),
+            'boot_std': boot.std(),
+            'actual_std': variable.std(),
+        }
+
     def box_plot(self, save=False):
         """Create box plot of quantitative fields.
         
@@ -184,43 +204,6 @@ class HR:
 
         if save:
             plt.savefig('central_limit.png')
-        else:
-            plt.show()
-
-    def gaussian_plot(self, normal_overlay=False, save=False):
-        """Create histogram plots for Gaussian variables.
-        
-        :param bool normal_overlay: if True a Gaussian curve will be overlaid \
-            the histogram for each variable
-        :param bool save: if True the plot will be saved to disk. 
-        """
-        if self._norm_stats is None:
-            self.calc_gaussian_stats()
-        fig = plt.figure(f'Gaussian Variables', figsize=(10, 10),
-                         facecolor='white', edgecolor='black')
-        rows, cols = (3, 1)
-        ax0 = plt.subplot2grid((rows, cols), (0, 0))
-        ax1 = plt.subplot2grid((rows, cols), (1, 0))
-        ax2 = plt.subplot2grid((rows, cols), (2, 0))
-
-        for var, ax in zip(self.normal_vars, (ax0, ax1, ax2)):
-            self.data[var].plot(
-                kind='hist', alpha=0.5, bins=50, edgecolor='black',
-                normed=True,
-                title=' '.join([x.title() for x in var.split('_')]), ax=ax)
-            if normal_overlay:
-                rv = stats.norm(loc=self.data[var].mean(),
-                                scale=self.data[var].std())
-                x = np.linspace(rv.ppf(0.01), rv.ppf(0.99), 100)
-                ax.plot(x, rv.pdf(x), color='indianred', linestyle='-',
-                        linewidth=2)
-
-        plt.suptitle('Gaussian Variables',
-                     fontsize=self.sup_title_size, y=1.08)
-        plt.tight_layout()
-
-        if save:
-            plt.savefig('gaussian.png')
         else:
             plt.show()
 
@@ -390,6 +373,36 @@ class HR:
         """Probability an employee experienced a work accident."""
         self._p_work_accident = self.data.accident.mean()
 
+    @staticmethod
+    def calc_power(dataset_1, dataset_2):
+        """Statistical Power of two datasets using T distributions.
+        
+        .. note:: This method should work, but does not yield the same result \
+            as the solution guide.
+        
+        :param pd.Series dataset_1: first dataset
+        :param pd.Series dataset_2: second dataset
+        :returns: statistical power of both datasets
+        :rtype: float
+        """
+        df_1, med_1, scale_1 = stats.t.fit(dataset_1)
+        df_2, med_2, scale_2 = stats.t.fit(dataset_2)
+
+        dt_1 = stats.t(df=df_1, loc=dataset_1.mean(),
+                       scale=dataset_1.std(ddof=1) / dataset_1.size**0.5)
+        dt_2 = stats.t(df=df_2, loc=dataset_2.mean(),
+                       scale=dataset_2.std(ddof=1) / dataset_2.size ** 0.5)
+
+        if dataset_1.mean() < dataset_2.mean():
+            lower = dt_1
+            upper = dt_2
+        else:
+            lower = dt_2
+            upper = dt_1
+
+        x_bar = lower.ppf(0.95)
+        return upper.sf(x_bar)
+
     def calc_percentile_satisfaction(self, percentile, left=False):
         """Return percentile of job satisfaction.
         
@@ -477,6 +490,77 @@ class HR:
 
         return sat_pct
 
+    def compare_confidence(self, dataset_1, name_1, dataset_2, name_2,
+                           confidence):
+        """Compare confidence intervals between Gaussian and T distributions.
+        
+        :param pd.Series dataset_1: first dataset
+        :param str name_1: name of first dataset
+        :param pd.Series dataset_2: second dataset
+        :param str name_2: name of second dataset
+        :param float confidence: confidence level
+        :returns: T and Gaussian confidence intervals
+        :rtype: dict
+        """
+        t = {}
+        normal = {}
+
+        for dataset, name in zip((dataset_1, dataset_2), (name_1, name_2)):
+            t[name] = self.t_confidence(dataset, confidence)
+            normal[name] = self.gaussian_confidence(dataset, confidence)
+
+        return {'t': t, 'normal': normal}
+
+    @staticmethod
+    def gaussian_confidence(dataset, confidence=0.95):
+        """Confidence interval for a Gaussian distribution at given confidence.
+        
+        :param pd.Series dataset: dataset to evaluate
+        :param float confidence: desired confidence
+        :returns: upper and lower confidence limits
+        :rtype: tuple
+        """
+        distribution = stats.norm(
+            loc=dataset.mean(), scale=dataset.std(ddof=1) / dataset.size**0.5)
+        return distribution.interval(confidence)
+
+    def gaussian_plot(self, normal_overlay=False, save=False):
+        """Create histogram plots for Gaussian variables.
+
+        :param bool normal_overlay: if True a Gaussian curve will be overlaid \
+            the histogram for each variable
+        :param bool save: if True the plot will be saved to disk. 
+        """
+        if self._norm_stats is None:
+            self.calc_gaussian_stats()
+        fig = plt.figure(f'Gaussian Variables', figsize=(10, 10),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (3, 1)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+        ax1 = plt.subplot2grid((rows, cols), (1, 0))
+        ax2 = plt.subplot2grid((rows, cols), (2, 0))
+
+        for var, ax in zip(self.normal_vars, (ax0, ax1, ax2)):
+            self.data[var].plot(
+                kind='hist', alpha=0.5, bins=50, edgecolor='black',
+                normed=True,
+                title=' '.join([x.title() for x in var.split('_')]), ax=ax)
+            if normal_overlay:
+                rv = stats.norm(loc=self.data[var].mean(),
+                                scale=self.data[var].std())
+                x = np.linspace(rv.ppf(0.01), rv.ppf(0.99), 100)
+                ax.plot(x, rv.pdf(x), color='indianred', linestyle='-',
+                        linewidth=2)
+
+        plt.suptitle('Gaussian Variables',
+                     fontsize=self.sup_title_size, y=1.08)
+        plt.tight_layout()
+
+        if save:
+            plt.savefig('gaussian.png')
+        else:
+            plt.show()
+
     def poisson_distributions(self):
         """Create distributions for the Poisson variables."""
         poisson = self.data.loc[:, ['salary', *self.poisson_vars]]
@@ -492,3 +576,76 @@ class HR:
                 lambda x: x[1].cdf(x[0]), axis=1)
 
         return poisson
+
+    @staticmethod
+    def t_confidence(dataset, confidence=0.95):
+        """Confidence interval for a T distribution at given confidence.
+
+        :param pd.Series dataset: dataset to evaluate
+        :param float confidence: desired confidence
+        :returns: upper and lower confidence limits
+        :rtype: tuple
+        """
+        df, loc, scale = stats.t.fit(dataset)
+        distribution = stats.t(
+            df=df,
+            loc=dataset.mean(),
+            scale=dataset.std(ddof=1) / dataset.size**0.5)
+        return distribution.interval(confidence)
+
+    def t_test(self, dataset_1, name_1, dataset_2, name_2, dataset_3=None,
+               name_3=None, save=False, independent_vars=True):
+        """T-test to determine if two datasets have identical values.
+        
+        :param pd.Series dataset_1: first dataset
+        :param name_1: first dataset name
+        :param pd.Series dataset_2: second dataset
+        :param name_2: second dataset name
+        :param pd.Series dataset_3: third dataset
+        :param name_3: third dataset name
+        :param bool save: if True figure will be saved to disk
+        :param bool independent_vars: if True the two datasets will be \ 
+            assumed to be independent
+        """
+        fig = plt.figure('Bernoulli Plot', figsize=(10, 7),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (2, 1)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+
+        norm_1 = stats.norm(loc=dataset_1.mean(),
+                            scale=dataset_1.std() / dataset_1.size**0.5)
+        x_1 = np.linspace(norm_1.ppf(0.01), norm_1.ppf(0.99), 100)
+        norm_2 = stats.norm(loc=dataset_2.mean(),
+                            scale=dataset_2.std() / dataset_2.size**0.5)
+        x_2 = np.linspace(norm_2.ppf(0.01), norm_2.ppf(0.99), 100)
+
+        ax0.plot(x_1, norm_1.pdf(x_1), color='indianred', label=name_1,
+                 linestyle='-', linewidth=2)
+        ax0.plot(x_2, norm_2.pdf(x_2), color='k', label=name_2,
+                 linestyle='-', linewidth=2)
+
+        if dataset_3 is not None:
+            norm_3 = stats.norm(loc=dataset_3.mean(),
+                                scale=dataset_3.std() / dataset_3.size ** 0.5)
+            x_3 = np.linspace(norm_3.ppf(0.01), norm_3.ppf(0.99), 100)
+            ax0.plot(x_3, norm_3.pdf(x_3), color='g', label=name_3,
+                     linestyle='-', linewidth=2)
+
+        ax0.legend()
+        ax0.set_xlabel('')
+        ax0.set_ylabel('')
+        plt.suptitle('T-test Comparision',
+                     fontsize=self.sup_title_size, y=1.08)
+        plt.tight_layout()
+
+        if save:
+            plt.savefig('ttest.png')
+        else:
+            plt.show()
+
+        if independent_vars:
+            test = stats.ttest_ind(a=dataset_1, b=dataset_2, equal_var=False)
+        else:
+            test = stats.ttest_1samp(a=dataset_1, popmean=dataset_2.mean())
+
+        return test
