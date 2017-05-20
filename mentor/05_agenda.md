@@ -53,7 +53,12 @@
 
 - Create storage schema
     - From [US Census website](https://www.census.gov/geo/maps-data/data/gazetteer2016.html) extracted US city location data
-    - May be desirable to write city data to SQL database 
+    - May be desirable to write city data to SQL database
+    - Tables
+        - States
+            - number | abbreviation | full_name | latitude | longitude
+        - Cities
+            - number | name | population | latitude | longitude
 
 TODO
 - Add links to website projects D3 tree
@@ -64,6 +69,12 @@ TODO
 
 ---
 ### <a name="notes"></a> Notes
+
+- Mapping
+    - Folio
+
+- Database
+    - Elastic
 
 [Table of Contents](#toc)
 
