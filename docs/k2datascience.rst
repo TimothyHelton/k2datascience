@@ -19,6 +19,13 @@ hr_analytics
     :show-inheritance:
     :synopsis: Module related to analyzing the Human Resources dataset.
 
+movies
+------
+.. automodule:: movies
+    :members:
+    :show-inheritance:
+    :synopsis: Module related to analyzing the Movie Box Office dataset.
+
 nyc_mta
 -------
 .. automodule:: nyc_mta
