@@ -77,6 +77,14 @@ class BoxOffice:
         return(f'BoxOffice('
                f'data_file={self.data_file})')
 
+    def director_performance(self):
+        """Rate the directors on domestic gross sales and quantity of hits."""
+
+        dirs = self.data.groupby('director')['domestic_gross'].agg(['sum',
+                                                                    'count'])
+        dirs.columns = ['domestic_gross', 'qty']
+        return dirs.sort_values(by='domestic_gross', ascending=False)
+
     def distribution_plot(self, save=False):
         """Box plot of numerical data types.
         
@@ -259,3 +267,70 @@ class BoxOffice:
             plt.savefig('kde_plot.png')
         else:
             plt.show()
+
+    def rating_plot(self, save=False):
+        """Plot movie rating with respect to run time and domestic gross.
+        
+        :param bool save: if True the plot will be saved to disk
+        """
+        fig = plt.figure('Rating Plot', figsize=(10, 10),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (2, 2)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+        ax1 = plt.subplot2grid((rows, cols), (0, 1))
+        ax2 = plt.subplot2grid((rows, cols), (1, 0))
+        ax3 = plt.subplot2grid((rows, cols), (1, 1))
+
+        rating = self.data.groupby(['rating'])['runtime',
+                                               'domestic_gross'].mean()
+        axes_bar = (
+            ax2,
+            ax3,
+        )
+        axes_pie = (
+            ax0,
+            ax1,
+        )
+        column = (
+            'runtime',
+            'domestic_gross',
+        )
+        titles = (
+            'Run Time',
+            'Domestic Gross Sales',
+        )
+        y_format = (
+            False,
+            True,
+        )
+        y_labels = (
+            'Minutes',
+            'US Dollars',
+        )
+
+        for ax, dat, title in zip(axes_pie, column, titles):
+            rating[dat].plot(kind='pie', autopct='%i%%',
+                             explode=[0.05] * rating[dat].shape[0],
+                             pctdistance=0.88, legend=None, shadow=True, ax=ax)
+            ax.set_title(title, fontsize=self.title_size, y=0.97)
+            ax.set_ylabel('')
+
+        for ax, dat, title, y_for, y_lab in zip(axes_bar, column, titles,
+                                                y_format, y_labels):
+            rating[dat].plot(kind='bar', alpha=0.5, ax=ax)
+            ax.set_title(title, fontsize=self.title_size)
+            ax.set_xlabel('Movie Rating', fontsize=self.label_size)
+            ax.set_ylabel(y_lab, fontsize=self.label_size)
+            if y_for:
+                ax.yaxis.set_major_formatter(self.millions_formatter)
+
+        plt.suptitle('Movie Rating Plots', fontsize=self.sup_title_size,
+                     y=1.03)
+        plt.tight_layout()
+
+        if save:
+            plt.savefig('rating_plot.png')
+        else:
+            plt.show()
+
+        return rating
