@@ -153,6 +153,59 @@ class BoxOffice:
         else:
             plt.show()
 
+    def domestic_gross_rating_plot(self, save=False):
+        """Domestic Gross Sales vs Rating plot."""
+        fig = plt.figure('Domestic Gross Sales vs Rating Plot',
+                         figsize=(10, 15), facecolor='white',
+                         edgecolor='black')
+        rows, cols = (4, 2)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0), colspan=2, rowspan=2)
+        ax1 = plt.subplot2grid((rows, cols), (2, 0), sharey=ax0)
+        ax2 = plt.subplot2grid((rows, cols), (2, 1), sharex=ax1, sharey=ax0)
+        ax3 = plt.subplot2grid((rows, cols), (3, 0), sharex=ax1, sharey=ax0)
+        ax4 = plt.subplot2grid((rows, cols), (3, 1), sharex=ax1, sharey=ax0)
+
+        axes = (
+            ax1,
+            ax2,
+            ax3,
+            ax4,
+        )
+        style = (
+            'bo',
+            'gd',
+            'r*',
+            'k^'
+        )
+        rating_group = self.data.groupby('rating')['domestic_gross',
+                                                   'release_date']
+
+        for ax, group, sty in zip(axes, rating_group, style):
+            group[1].plot(x='release_date', y='domestic_gross', alpha=0.5,
+                          label=str(group[0]), style=sty, ax=ax0)
+            group[1].plot(x='release_date', y='domestic_gross', alpha=0.5,
+                          label=str(group[0]), legend='', style=sty, ax=ax)
+            ax.set_title(str(group[0]), fontsize=self.title_size)
+
+        for ax in (ax0, ax1, ax3):
+            ax.yaxis.set_major_formatter(self.millions_formatter)
+            ax.set_ylabel('Domestic Gross Sales\n(US Dollars)',
+                          fontsize=self.label_size)
+
+        for ax in (ax3, ax4):
+            ax.set_xlabel('Release Date', fontsize=self.label_size)
+
+        ax0.legend()
+
+        plt.suptitle('Domestic Gross Sales vs Release Date',
+                     fontsize=self.sup_title_size, y=0.92)
+        fig.autofmt_xdate()
+
+        if save:
+            plt.savefig('domestic_gross_vs_rating_plot.png')
+        else:
+            plt.show()
+
     def domestic_gross_vs_release_date_plot(self, save=False):
         """Domestic Gross Sales vs Release Date plot.
         
