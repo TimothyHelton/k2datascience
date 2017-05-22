@@ -6,13 +6,12 @@
 .. moduleauthor:: Timothy Helton <timothy.j.helton@gmail.com>
 """
 import logging
-import os
 import os.path as osp
 
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import pandas as pd
-import numpy as np
+import scipy.stats as stats
 import seaborn as sns
 
 
@@ -32,6 +31,17 @@ class BoxOffice:
     
     :Attributes:
     
+    - **columns**: *tuple* names of data columns
+    - **data_types**: *tuple* data types of data columns
+    - **data_file**: *str* name of data file
+    - **data**: *DataFrame* data
+    - **million_formatter**: *FuncFormatter* matplotlib ticker format which \
+        adds a dollar symbol and scales by a million (1e6)
+    - **numerical_titles**: *tuple* titles for data columns containing \
+        numerical values
+    - **label_size**: *int* font size for plot labels
+    - **title_size**: *int* font size for plot titles
+    - **sup_title_size**: *int* font size for plot super titles
     """
     def __init__(self, data_file=movie_data):
         self.columns = (
@@ -78,8 +88,13 @@ class BoxOffice:
                f'data_file={self.data_file})')
 
     def director_performance(self):
-        """Rate the directors on domestic gross sales and quantity of hits."""
-
+        """Rate the directors on domestic gross sales and quantity of hits.
+        
+        :returns: table of directors names, domestic gross sales, and \
+            quantity of movies released sorted by descending dometic gross \
+            sales
+        :rtype: DataFrame
+        """
         dirs = self.data.groupby('director')['domestic_gross'].agg(['sum',
                                                                     'count'])
         dirs.columns = ['domestic_gross', 'qty']
@@ -152,6 +167,66 @@ class BoxOffice:
             plt.savefig('distribution_plot.png')
         else:
             plt.show()
+
+    def domestic_gross_vs_months(self, save=False):
+        """Domestic Gross Sales vs Month plot.
+        
+        :returns: table of movies release by month, domestic gross sales \ 
+            mean and corresponding standard error
+        :rtype: DataFrame
+        """
+        fig = plt.figure('Domestic Gross Sales vs Release Date Month Plot',
+                         figsize=(10, 5), facecolor='white',
+                         edgecolor='black')
+        rows, cols = (1, 1)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+
+        months = self.data.release_date.map(lambda x: x.month)
+        aggregate = [
+            'mean',
+            lambda x: stats.sem(x),
+        ]
+        col_rename = {
+            'mean': 'domestic_gross_mean',
+            '<lambda>': 'std_error',
+        }
+        idx_rename = {
+            1: 'JAN',
+            2: 'FEB',
+            3: 'MAR',
+            4: 'APR',
+            5: 'MAY',
+            6: 'JUN',
+            7: 'JUL',
+            8: 'AUG',
+            9: 'SEP',
+            10: 'OCT',
+            11: 'NOV',
+            12: 'DEC',
+        }
+
+        month_data = (self.data.groupby(months).domestic_gross
+                      .agg(aggregate)
+                      .rename(index=idx_rename, columns=col_rename))
+
+        month_data.domestic_gross_mean.plot(kind='bar', alpha=0.5, legend='',
+                                            yerr=month_data.std_error, ax=ax0)
+
+        ax0.yaxis.set_major_formatter(self.millions_formatter)
+        ax0.set_xlabel('Release Month', fontsize=self.label_size)
+        ax0.set_ylabel('Domestic Gross Sales\n(US Dollars)',
+                       fontsize=self.label_size)
+
+        plt.suptitle('Domestic Gross Sales vs Release Date Month',
+                     fontsize=self.sup_title_size)
+        fig.autofmt_xdate()
+
+        if save:
+            plt.savefig('domestic_gross_vs_month.png')
+        else:
+            plt.show()
+
+        return month_data
 
     def domestic_gross_rating_plot(self, save=False):
         """Domestic Gross Sales vs Rating plot."""
@@ -325,6 +400,8 @@ class BoxOffice:
         """Plot movie rating with respect to run time and domestic gross.
         
         :param bool save: if True the plot will be saved to disk
+        :returns: table of movie ratings, run times, and domestic gros sales
+        :rtype: DataFrame
         """
         fig = plt.figure('Rating Plot', figsize=(10, 10),
                          facecolor='white', edgecolor='black')
