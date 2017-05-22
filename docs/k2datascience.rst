@@ -33,6 +33,13 @@ nyc_mta
     :show-inheritance:
     :synopsis: Module related to analyzing the New York MTA turnstile data.
 
+olympics
+--------
+.. automodule:: olympics
+    :members:
+    :show-inheritance:
+    :synopsis: Module related to analyzing the 2016 Olympic Medal data.
+
 plotting
 --------
 .. automodule:: plotting
