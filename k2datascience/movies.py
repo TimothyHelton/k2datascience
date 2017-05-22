@@ -176,19 +176,24 @@ class BoxOffice:
         :rtype: DataFrame
         """
         fig = plt.figure('Domestic Gross Sales vs Release Date Month Plot',
-                         figsize=(10, 5), facecolor='white',
+                         figsize=(10, 2), facecolor='white',
                          edgecolor='black')
-        rows, cols = (1, 1)
+        rows, cols = (4, 2)
         ax0 = plt.subplot2grid((rows, cols), (0, 0))
+        ax1 = plt.subplot2grid((rows, cols), (0, 1))
+        ax2 = plt.subplot2grid((rows, cols), (1, 0), colspan=2)
+        ax3 = plt.subplot2grid((rows, cols), (2, 0), colspan=2, sharex=ax2)
+        ax4 = plt.subplot2grid((rows, cols), (3, 0), colspan=2, sharex=ax2)
 
-        months = self.data.release_date.map(lambda x: x.month)
         aggregate = [
             'mean',
             lambda x: stats.sem(x),
+            'count',
         ]
         col_rename = {
             'mean': 'domestic_gross_mean',
             '<lambda>': 'std_error',
+            'count': 'month_release'
         }
         idx_rename = {
             1: 'JAN',
@@ -205,20 +210,61 @@ class BoxOffice:
             12: 'DEC',
         }
 
-        month_data = (self.data.groupby(months).domestic_gross
-                      .agg(aggregate)
-                      .rename(index=idx_rename, columns=col_rename))
+        months = (self.data.release_date
+                  .map(lambda x: x.month)
+                  .rename(index=idx_rename))
+        month_agg = (self.data.groupby(months).domestic_gross
+                     .agg(aggregate)
+                     .rename(index=idx_rename, columns=col_rename))
+        month_agg['avg_gross'] = (month_agg.domestic_gross_mean
+                                  .divide(month_agg.month_release))
 
-        month_data.domestic_gross_mean.plot(kind='bar', alpha=0.5, legend='',
-                                            yerr=month_data.std_error, ax=ax0)
+        # domestic gross sales pie plot
+        (month_agg.domestic_gross_mean
+         .plot(kind='pie', autopct='%i%%',
+               explode=[0.05] * 12, pctdistance=0.88, legend=None,
+               shadow=True, ax=ax0))
+        ax0.set_title('Domestic Gross Sales', fontsize=self.title_size)
+        ax0.set_ylabel('')
 
-        ax0.yaxis.set_major_formatter(self.millions_formatter)
-        ax0.set_xlabel('Release Month', fontsize=self.label_size)
-        ax0.set_ylabel('Domestic Gross Sales\n(US Dollars)',
+        # releases by month pie plot
+        (month_agg.month_release
+         .plot(kind='pie', autopct='%i%%',
+               explode=[0.05] * 12, pctdistance=0.88, legend=None,
+               shadow=True, ax=ax1))
+        ax1.set_title('Releases by Month', fontsize=self.title_size)
+        ax1.set_ylabel('')
+
+        # domestic gross sales vs release month
+        month_agg.domestic_gross_mean.plot(kind='bar', alpha=0.5,
+                                           edgecolor='black', legend='',
+                                           yerr=month_agg.std_error, ax=ax2)
+
+        ax2.yaxis.set_major_formatter(self.millions_formatter)
+        ax2.set_ylabel('Domestic Gross Sales\n(US Dollars)',
                        fontsize=self.label_size)
 
+        # count of releases vs release month
+        month_agg.month_release.plot(kind='bar', alpha=0.5, edgecolor='black',
+                                     legend='', ax=ax3)
+        ax3.axvline(month_agg.month_release.mean(), color='crimson',
+                    label='Mean', linestyle='--')
+        ax3.axvline(month_agg.month_release.median(), color='black',
+                    label='Median', linestyle='-.')
+        ax3.set_ylabel('Count', fontsize=self.label_size)
+
+        # average domestic gross sales vs release month
+        month_agg.avg_gross.plot(kind='bar', alpha=0.5, edgecolor='black',
+                                 legend='', ax=ax4)
+
+        ax4.yaxis.set_major_formatter(self.millions_formatter)
+        ax4.set_xlabel('Release Month', fontsize=self.label_size)
+        ax4.set_ylabel('Average Domestic Gross Sales\n(US Dollars)',
+                       fontsize=self.label_size)
+
+        # figure options
         plt.suptitle('Domestic Gross Sales vs Release Date Month',
-                     fontsize=self.sup_title_size)
+                     fontsize=self.sup_title_size, y=0.92)
         fig.autofmt_xdate()
 
         if save:
@@ -226,7 +272,7 @@ class BoxOffice:
         else:
             plt.show()
 
-        return month_data
+        return month_agg
 
     def domestic_gross_rating_plot(self, save=False):
         """Domestic Gross Sales vs Rating plot."""
