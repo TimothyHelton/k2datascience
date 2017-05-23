@@ -275,7 +275,10 @@ class BoxOffice:
         return month_agg
 
     def domestic_gross_rating_plot(self, save=False):
-        """Domestic Gross Sales vs Rating plot."""
+        """Domestic Gross Sales vs Rating plot.
+        
+        :param bool save: if True the plot will be saved to disk
+        """
         fig = plt.figure('Domestic Gross Sales vs Rating Plot',
                          figsize=(10, 15), facecolor='white',
                          edgecolor='black')
