@@ -70,6 +70,7 @@ class BoxOffice:
             names=self.columns,
             parse_dates=[6],
         )
+        self.data.sort_values(by='release_date', inplace=True)
 
         # plot attributes
         self.millions_formatter = FuncFormatter(
@@ -176,7 +177,7 @@ class BoxOffice:
         :rtype: DataFrame
         """
         fig = plt.figure('Domestic Gross Sales vs Release Date Month Plot',
-                         figsize=(10, 2), facecolor='white',
+                         figsize=(10, 20), facecolor='white',
                          edgecolor='black')
         rows, cols = (4, 2)
         ax0 = plt.subplot2grid((rows, cols), (0, 0))
@@ -373,28 +374,17 @@ class BoxOffice:
 
         :param bool save: if True the plot will be saved to disk
         """
-        fig = plt.figure('Domestic Gross Sales vs Run Time', figsize=(10, 10),
+        fig = plt.figure('Domestic Gross Sales vs Run Time', figsize=(10, 5),
                          facecolor='white', edgecolor='black')
-        rows, cols = (3, 1)
+        rows, cols = (1, 1)
         ax0 = plt.subplot2grid((rows, cols), (0, 0))
-        ax1 = plt.subplot2grid((rows, cols), (1, 0), sharex=ax0)
 
-        axes = (
-            ax0,
-            ax1,
-        )
-        style = (
-            'd',
-            '-',
-        )
-
-        for ax, sty in zip(axes, style):
-            self.data.plot(label='', legend=None, style=sty, x='runtime',
-                           y='domestic_gross', ax=ax)
-            ax.yaxis.set_major_formatter(self.millions_formatter)
-            ax.set_xlabel('Run Time\n(minutes)', fontsize=self.label_size)
-            ax.set_ylabel('Domestic Gross Sales\n(US Dollars)',
-                          fontsize=self.label_size)
+        self.data.plot(label='', legend=None, style='d', x='runtime',
+                       y='domestic_gross', ax=ax0)
+        ax0.yaxis.set_major_formatter(self.millions_formatter)
+        ax0.set_xlabel('Run Time\n(minutes)', fontsize=self.label_size)
+        ax0.set_ylabel('Domestic Gross Sales\n(US Dollars)',
+                       fontsize=self.label_size)
 
         plt.suptitle('Domestic Gross Sales vs Run Time',
                      fontsize=self.sup_title_size, y=1.03)
@@ -513,3 +503,27 @@ class BoxOffice:
             plt.show()
 
         return rating
+
+    def runtime_vs_release_plot(self, save=False):
+        """Run Time vs Release Date plot.
+
+        :param bool save: if True the plot will be saved to disk
+        """
+        fig = plt.figure('Run Time vs Release Date', figsize=(10, 5),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (1, 1)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+
+        self.data.plot(label='', legend=None, x='release_date', y='runtime',
+                       ax=ax0)
+        ax0.set_xlabel('Release Date', fontsize=self.label_size)
+        ax0.set_ylabel('Run Time\n(minutes)', fontsize=self.label_size)
+
+        plt.suptitle('Run Time vs Release Date',
+                     fontsize=self.sup_title_size, y=1.03)
+        plt.tight_layout()
+
+        if save:
+            plt.savefig('Runtime_vs_release_plot.png')
+        else:
+            plt.show()
