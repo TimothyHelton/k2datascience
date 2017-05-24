@@ -37,7 +37,18 @@ class Medals:
     
     :Attributes:
     
-    
+    - **athletes**: *DataFrame* athletes data
+    - **athletes_columns**: *tuple* column names for athletes dataset
+    - **athletes_dtypes**: *tuple* data types for athletes dataset
+    - **countries**: *DataFrame* countries data
+    - **countries_columns**: *tuple* column names for countries dataset
+    - **countries_dtypes**: *tuple* data types for countries dataset
+    - **data_sources**: *list* paths to source data files
+    - **heights**: *DataFrame* athletes heights and sex
+    - **label_size**: *int* plot label font size
+    - **start_date**: *Date* date for 2016 Olympics opening ceremony
+    - **sup_title_size**: *int* plot super title font size
+    - **title_size**: *int* plot title font size 
     """
     def __init__(self, data_sources=data_paths):
         self.athletes_columns = (
@@ -280,7 +291,6 @@ class Medals:
             (0.33333333333333331, 0.6588235294117647, 0.40784313725490196),
         )
 
-
         # combined plot
         male.plot(kind='hist', alpha=0.5, bins=bins, color=color[0],
                   edgecolor='black', ax=ax0)
@@ -327,15 +337,52 @@ class Medals:
         else:
             plt.show()
 
+    def height_sport(self, save=False):
+        """Compare height vs sport with respect to sex.
+        
+        :param bool save: if True the plot will be saved to disk
+        """
+        fig = plt.figure('Height vs Sport',
+                         figsize=(15, 7), facecolor='white',
+                         edgecolor='black')
+        rows, cols = (1, 1)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+
+        sns.violinplot(x='sport', y='height', hue='sex',
+                       data=(self.athletes
+                             .sort_values(by=['sport', 'sex'],
+                                          ascending=[True, False])),
+                       cut=0,
+                       split=True, ax=ax0)
+
+        ax0.set_xlabel('Sport', fontsize=self.label_size)
+        ax0.set_ylabel('Height (m)', fontsize=self.label_size)
+        ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(), rotation=80)
+
+        plt.tight_layout()
+        plt.suptitle("2016 Olympic Athlete's Height by Sport",
+                     fontsize=self.sup_title_size, y=1.05)
+
+        if save:
+            plt.savefig('height_sport.png', bbox_inches='tight',
+                        bbox_extra_artists=[self.sup_title_size])
+        else:
+            plt.show()
+
     def weightlifting_classes(self, save=False):
-        """Determine weightlifting classes based on data."""
-        weightlifters = self.athletes.query('sport == "weightlifting"')
+        """Determine weightlifting classes based on data.
+        
+        :param bool save: if True the plot will be saved to disk
+        """
+        weightlifters = self.athletes.query('sport == "weightlifting"'
+                                            '& sex == "male"')
 
         iterations = 100
-        weight_cls = np.zeros((8, iterations))
+        n_groups = 7
+        weight_cls = np.zeros((n_groups, iterations))
         x = weightlifters.query('weight < 110')[['weight', 'height']].values
         for n in range(iterations):
-            kmeans = KMeans(n_clusters=8).fit(x)
+            kmeans = KMeans(n_clusters=n_groups).fit(x)
             kmeans.predict(x)
             weight_cls[:, n] = np.sort(kmeans.cluster_centers_, axis=0)[:, 0]
 
@@ -355,7 +402,7 @@ class Medals:
             'facecolor': 'white',
         }
 
-        for predicted_weight in weight_classes[1:]:
+        for predicted_weight in weight_classes:
             ax0.axvline(predicted_weight, color='crimson', linestyle='--')
             ax0.text(predicted_weight - 2.5, 1.95,
                      f'{predicted_weight:.1f}', bbox=text_box_props,
