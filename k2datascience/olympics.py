@@ -11,10 +11,9 @@ import os.path as osp
 
 from dateutil import relativedelta
 from matplotlib import pyplot as plt
-from matplotlib.ticker import FuncFormatter
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
+from sklearn.cluster import KMeans
 import seaborn as sns
 
 
@@ -93,6 +92,7 @@ class Medals:
         )
 
         self._ages = None
+        self.heights = self.athletes.loc[:, ['sex', 'height']].set_index('sex')
         self.start_date = dt.date(2016, 8, 5)
 
         # plot attributes
@@ -128,7 +128,7 @@ class Medals:
                                    'months',
                                    'days']
                    .mean())
-        return age_avg.applymap(np.floor)
+        return np.floor(age_avg)
 
     def calc_ages(self):
         """Determine the age of athletes."""
@@ -156,16 +156,19 @@ class Medals:
               f'following dates:\n{top_birthday_list}')
 
     def common_month_day_birthday(self):
-        """Find most common birthday month and day for the athletes."""
+        """Find most common birthday month and day for the athletes.
+        
+        :returns: athlete's most common birthday month and day
+        :rtype: DataFrame
+        """
         birthday = self.athletes.dob.to_frame()
         birthday['month'] = birthday.dob.map(lambda x: x.month)
         birthday['day'] = birthday.dob.map(lambda x: x.day)
         common_bday = (birthday.loc[:, ['month', 'day']]
                        .mean()
-                       .map(np.floor)
                        .to_frame())
         common_bday.columns = ['Most Common Birthday']
-        return common_bday
+        return np.floor(common_bday)
 
     def country_medals_plot(self, total_medals=100, save=False):
         """Plot the country_medals.
@@ -178,7 +181,7 @@ class Medals:
             self.get_country_medals()
 
         font = {
-                'size': self.label_size,
+            'size': self.label_size,
         }
 
         plt.rc('font', **font)
@@ -206,12 +209,13 @@ class Medals:
         ax1.set_ylabel('Total Medal Count', fontsize=self.label_size)
         ax1.set_xticklabels(ax1.xaxis.get_majorticklabels(), rotation=45)
 
+        plt.tight_layout()
         plt.suptitle('2016 Olympic Medal Count by Country',
                      fontsize=self.sup_title_size, y=1.05)
-        plt.tight_layout()
 
         if save:
-            plt.savefig('country_medals.png')
+            plt.savefig('country_medals.png', bbox_inches='tight',
+                        bbox_extra_artists=[self.sup_title_size])
         else:
             plt.show()
 
@@ -221,3 +225,154 @@ class Medals:
                                 .groupby('country')['gold', 'silver', 'bronze']
                                 .agg('sum'))
         self._country_medals['total'] = self._country_medals.sum(axis=1)
+
+    def height_boxplot(self, save=False):
+        """Generate box plot of male and female height values.
+
+        :param bool save: if True the plot will be saved to disk
+        """
+        height_by_sex = self.heights.reset_index()
+
+        fig = plt.figure('Height Boxplot',
+                         figsize=(8, 5), facecolor='white',
+                         edgecolor='black')
+        rows, cols = (1, 2)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+        ax1 = plt.subplot2grid((rows, cols), (0, 1), sharey=ax0)
+
+        sns.boxplot(x='sex', y='height', data=height_by_sex, width=0.3, ax=ax0)
+        sns.violinplot(x='sex', y='height', data=height_by_sex, cut=0,
+                       inner='quartile', ax=ax1)
+
+        for ax in (ax0, ax1):
+            ax.set_xlabel('Sex', fontsize=self.label_size)
+            ax.set_ylabel('Height (m)', fontsize=self.label_size)
+
+        plt.tight_layout()
+        plt.suptitle("2016 Olympic Athlete's Height",
+                     fontsize=self.sup_title_size, y=1.05)
+
+        if save:
+            plt.savefig('height_box.png', bbox_inches='tight',
+                        bbox_extra_artists=[self.sup_title_size])
+        else:
+            plt.show()
+
+    def height_histograms(self, save=False):
+        """Generate histograms of male and female height values.
+        
+        :param bool save: if True the plot will be saved to disk
+        """
+        male = self.heights.loc['male'].dropna()
+        female = self.heights.loc['female'].dropna()
+
+        bins = 50
+        fig = plt.figure('Height Histograms',
+                         figsize=(10, 10), facecolor='white',
+                         edgecolor='black')
+        rows, cols = (3, 1)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+        ax1 = plt.subplot2grid((rows, cols), (1, 0), sharex=ax0)
+        ax2 = plt.subplot2grid((rows, cols), (2, 0), sharex=ax0)
+
+        color = (
+            (0.29803921568627451, 0.44705882352941179, 0.69019607843137254),
+            (0.33333333333333331, 0.6588235294117647, 0.40784313725490196),
+        )
+
+
+        # combined plot
+        male.plot(kind='hist', alpha=0.5, bins=bins, color=color[0],
+                  edgecolor='black', ax=ax0)
+        female.plot(kind='hist', alpha=0.5, bins=bins, color=color[1],
+                    edgecolor='black', ax=ax0)
+
+        ax0.legend(['Male', 'Female'])
+        ax0.set_title("Male and Female Athlete's Height",
+                      fontsize=self.title_size)
+        ax0.set_ylabel('Frequency', fontsize=self.label_size)
+
+        # male KDE
+        sns.distplot(male, ax=ax1, bins=bins, color=color[0],
+                     hist_kws={'alpha': 0.5, 'edgecolor': 'black'},
+                     kde_kws={'color': 'darkblue', 'label': 'KDE'})
+        ax1.axvline(male.height.mean(), color='crimson', label='Mean',
+                    linestyle='--')
+        ax1.axvline(male.height.median(), color='black', label='Median',
+                    linestyle='-.')
+        ax1.legend()
+        ax1.set_title("Male Athlete's Height", fontsize=self.title_size)
+        ax1.set_ylabel('Density', fontsize=self.label_size)
+
+        # female KDE
+        sns.distplot(female, ax=ax2, bins=bins, color=color[1],
+                     hist_kws={'alpha': 0.5, 'edgecolor': 'black'},
+                     kde_kws={'color': 'darkblue', 'label': 'KDE'})
+        ax2.axvline(female.height.mean(), color='crimson', label='Mean',
+                    linestyle='--')
+        ax2.axvline(female.height.median(), color='black', label='Median',
+                    linestyle='-.')
+        ax2.legend()
+        ax2.set_title("Female Athlete's Height", fontsize=self.title_size)
+        ax2.set_xlabel('Height (m)', fontsize=self.label_size)
+        ax2.set_ylabel('Density', fontsize=self.label_size)
+
+        plt.tight_layout()
+        plt.suptitle("2016 Olympic Athlete's Height",
+                     fontsize=self.sup_title_size, y=1.05)
+
+        if save:
+            plt.savefig('height_hist.png', bbox_inches='tight',
+                        bbox_extra_artists=[self.sup_title_size])
+        else:
+            plt.show()
+
+    def weightlifting_classes(self, save=False):
+        """Determine weightlifting classes based on data."""
+        weightlifters = self.athletes.query('sport == "weightlifting"')
+
+        iterations = 100
+        weight_cls = np.zeros((8, iterations))
+        x = weightlifters.query('weight < 110')[['weight', 'height']].values
+        for n in range(iterations):
+            kmeans = KMeans(n_clusters=8).fit(x)
+            kmeans.predict(x)
+            weight_cls[:, n] = np.sort(kmeans.cluster_centers_, axis=0)[:, 0]
+
+        weight_classes = weight_cls.mean(axis=1)
+
+        fig = plt.figure('Weightlifter Scatter',
+                         figsize=(10, 5), facecolor='white',
+                         edgecolor='black')
+        rows, cols = (1, 1)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+
+        weightlifters.plot(kind='scatter', x='weight', y='height', ax=ax0)
+
+        text_box_props = {
+            'boxstyle': 'round',
+            'edgecolor': 'red',
+            'facecolor': 'white',
+        }
+
+        for predicted_weight in weight_classes[1:]:
+            ax0.axvline(predicted_weight, color='crimson', linestyle='--')
+            ax0.text(predicted_weight - 2.5, 1.95,
+                     f'{predicted_weight:.1f}', bbox=text_box_props,
+                     fontsize=10)
+
+        ax0.text(140, 1.95, f'Over {weight_classes[-1]:.1f}',
+                 bbox=text_box_props, fontsize=10)
+
+        ax0.set_xlabel('Weight (Kg)', fontsize=self.label_size)
+        ax0.set_ylabel('Height (m)', fontsize=self.label_size)
+
+        plt.tight_layout()
+        plt.suptitle("2016 Olympic Weightlifter Height vs Weight",
+                     fontsize=self.sup_title_size, y=1.05)
+
+        if save:
+            plt.savefig('Weightlifter.png', bbox_inches='tight',
+                        bbox_extra_artists=[self.sup_title_size])
+        else:
+            plt.show()
