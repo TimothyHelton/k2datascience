@@ -14,7 +14,6 @@
 
 ---
 ### <a name="ds_conversation"></a> Data Science Conversation (10 minutes)
-# TODO finish
 - [Pandas Best Practices Article](https://timothyhelton.github.io/pandas_best_practices.html)
     - [Notebook](https://github.com/TimothyHelton/algorithms/blob/master/notebooks/Execution_Time.ipynb)
 
@@ -28,7 +27,6 @@
 #### Website
 - Updated [Projects Page](https://timothyhelton.github.io/projects.html) to 
 add hyperlinks to final leaf of tree
-# TODO create roots main page
 - Added [Roots Schema](https://timothyhelton.github.io/roots_schema.html) page
 
 #### Unit 8: Exploratory Data Analysis
@@ -51,7 +49,12 @@ add hyperlinks to final leaf of tree
 
 ---
 ### <a name="notes"></a> Notes
-- Next Week's Data Science Conversation: 
+- Next Week's Data Science Conversation:
+
+- Tasks
+    - Create Roots Main web page
+    - Create machinery for Unit 9 that would be also useful for Roots project
+    
 
 [Table of Contents](#toc)
 
