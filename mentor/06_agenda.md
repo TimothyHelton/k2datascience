@@ -52,9 +52,15 @@ add hyperlinks to final leaf of tree
 - Next Week's Data Science Conversation:
 
 - Tasks
+    # TODO
     - Create Roots Main web page
+    # TODO
     - Create machinery for Unit 9 that would be also useful for Roots project
-    
+    - Add blog page
+        - link to individual blog entries
+    - Add links to projects on page for each project
+    - Add comments section on website (link out to a dedicated blog site)
+    - Look into web domain
 
 [Table of Contents](#toc)
 
