@@ -34,6 +34,9 @@
         - By Race in New York State
             - The stats for the entire state do not seem representative of 
             New York City
+    - Target subway stations with close proximity to the following:
+        - Hospitals
+        - Non-Profit Organizations
     - Found NYC subway station dataset
         - Extracted qualities including Latitude and Longitude
 
@@ -55,6 +58,8 @@ senior applicant?
     - This removes the chance of my code breaking due to an change in the 
     dataset.
     - Update the modules to point to my website for the data.
+- Fix train names to remove the duplicate B
+    - Strip white space
 
 [Table of Contents](#toc)
 
