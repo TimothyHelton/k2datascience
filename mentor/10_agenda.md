@@ -3,20 +3,11 @@
 #### June 29, 7:00am (45 Minutes)
 
 
-[Data Science Conversation](#ds_converstation)
-
 [Status Update](#status_update)
 
 [Technical Questions](#technical_questions)
 
 [Notes](#notes)
-
-
----
-### <a name="ds_conversation"></a> Data Science Conversation (10 minutes)
-- Article
-
-[Table of Contents](#toc)
 
 
 ---
@@ -27,6 +18,16 @@
 
 - Unit 10 Introduction to Machine Learning
     - Complete
+
+- Unit 11 Dimensionality Reduction
+    - Watching lectures
+
+- Enthought instructor is now following me on twitter.
+
+- For unknown political reasons at work all employees are being directed to 
+have HR review their resumes and cover letters.
+
+- Added link to web page in email signature.
 
 [Table of Contents](#toc)
 
