@@ -37,12 +37,17 @@ have HR review their resumes and cover letters.
 - I would like to hear your feedback on the EDA project.
     - In the future would a different techniques be more useful?
     - Do you see practicing data scientists writing unit tests for their code?
+    - Do you have ideas for adding machine learning to this project?
+
 
 [Table of Contents](#toc)
 
 
 ---
 ### <a name="notes"></a> Notes
+- Pursue instructor for C++ class.
+- Join Gunnar's graph analysis group.
+
 
 [Table of Contents](#toc)
 
