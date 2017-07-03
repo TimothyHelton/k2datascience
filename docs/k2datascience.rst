@@ -40,6 +40,13 @@ olympics
     :show-inheritance:
     :synopsis: Module related to analyzing the 2016 Olympic Medal data.
 
+pca
+---
+.. automodule:: pca
+    :members:
+    :show-inheritance:
+    :synopsis: Module with Principle Components Analysis exercises.
+
 plotting
 --------
 .. automodule:: plotting
