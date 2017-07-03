@@ -4,8 +4,14 @@
 from pkg_resources import get_distribution, DistributionNotFound
 import os.path as osp
 
+from . import chronic_disease
+from . import hr_analytics
+from . import movies
 from . import nyc_mta
+from . import olympics
+from . import pca
 from . import plotting
+from . import yelp
 
 
 __version__ = '1.0.0'
