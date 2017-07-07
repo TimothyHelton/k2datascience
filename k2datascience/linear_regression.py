@@ -34,15 +34,24 @@ class LinearRegression:
 
     :Attributes:
 
+    - **coefficients**: *list* list of linear regression coefficients
     - **data**: *pd.DataFrame* original data
+    - **data_file**: *str* path to data file
     - **data_name**: *str* descriptive name of dataset
-    - **target**: *str* name of target field
+    - **data_types**: *dict* data types for original data
+    - **feature**: *str* name of feature field column
+    - **intercept**: *float* y-intercept
+    - **n_tests**: *int* number of samples to test regression fit
+    - **r2**: *float* coefficient of determination R-squared
+    - **target**: *str* name of target field column
     - **X**: *pd.DataFrame* original data with target column removed
     """
     def __init__(self, data_file=None):
         self.coefficients = None
         self.data = None
+        self.data_file = data_file
         self.data_name = None
+        self.data_types = None
         self.feature = None
         self.intercept = None
         self.n_tests = 20
