@@ -40,10 +40,15 @@ class LinearRegression:
     - **X**: *pd.DataFrame* original data with target column removed
     """
     def __init__(self, data_file=None):
+        self.coefficients = None
         self.data = None
         self.data_name = None
+        self.feature = None
+        self.intercept = None
+        self.n_tests = 20
+        self.r2 = None
         self.target = None
-        self._X =None
+        self._X = None
 
     @property
     def X(self):
@@ -104,6 +109,72 @@ class LinearRegression:
                 sns.jointplot(plot, self.target, data=self.data,
                               kind='kde', size=4, space=0)
 
+    def plot_simple_stats(self, save=False, title=None):
+        """
+        Plot the original data with linear regression line.
+
+        :param bool save: if True the figure will be saved
+        :param str title: data set title
+        """
+        plot_title = 'Linear Regression'
+        if title:
+            title = f'{title} {plot_title}'
+        else:
+            title = f'{self.data_name} {plot_title}'
+
+        fig = plt.figure(title, figsize=(8, 6),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (1, 1)
+        ax = plt.subplot2grid((rows, cols), (0, 0))
+
+        x = self.data[self.feature][-self.n_tests:].values
+        y = self.data[self.target][-self.n_tests:].values
+        test_sort = np.argsort(x.flatten())
+
+        ax.scatter(x, y, alpha=0.5, marker='d')
+        ax.plot(x[test_sort], self.simple_stats_predict(x)[test_sort],
+                color='black', linestyle='--')
+
+        ax.set_title(f'{self.target} vs {self.feature}',
+                     fontsize=size['title'])
+        ax.set_xlabel(self.feature, fontsize=size['label'])
+        ax.set_ylabel(self.target, fontsize=size['label'])
+
+        save_fig(title, save)
+
+    def simple_stats_fit(self):
+        """
+        Determine simple linear regression fit using statistics.
+        """
+        x = self.data[self.feature]
+        y = self.data[self.target]
+        n = y.size
+        sum_xy = np.sum(x * y)
+        sum_x_sqr = np.sum(np.square(x))
+        sum_x = np.sum(x)
+        sum_y = np.sum(y)
+
+        b1 = ((n * sum_xy) - sum_x * sum_y) / (n * sum_x_sqr - sum_x**2)
+        b0 = y.mean() - b1 * x.mean()
+
+        self.intercept = b0
+        self.coefficients = [b1]
+        self.r2 = np.corrcoef(x, y)[0, 1]**2
+
+    def simple_stats_predict(self, test_data):
+        """
+        Predict outputs for test data inputs.
+
+        :param test_data: test_data input to be used for prediction
+        :type: int, float
+        :return: linear regression predicted value
+        :rtype: float
+        """
+        if self.coefficients is None:
+            self.simple_stats_fit()
+
+        return self.intercept + self.coefficients[0] * test_data
+
 
 class AdvertisingSimple(LinearRegression):
     """
@@ -122,6 +193,7 @@ class AdvertisingSimple(LinearRegression):
             'newspaper': np.float64,
             'sales': np.float64,
         }
+        self.feature = 'tv'
         self.target = 'sales'
 
         self.load_data()
