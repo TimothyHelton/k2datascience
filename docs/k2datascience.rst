@@ -19,6 +19,13 @@ hr_analytics
     :show-inheritance:
     :synopsis: Module related to analyzing the Human Resources dataset.
 
+linear_regression
+-----------------
+.. automodule:: linear_regression
+    :members:
+    :show-inheritance:
+    :synopsis: Module related to linear regression.
+
 movies
 ------
 .. automodule:: movies

@@ -6,6 +6,7 @@ import os.path as osp
 
 from . import chronic_disease
 from . import hr_analytics
+from . import linear_regression
 from . import movies
 from . import nyc_mta
 from . import olympics
