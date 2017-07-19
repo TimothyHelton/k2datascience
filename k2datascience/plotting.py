@@ -7,8 +7,76 @@
 """
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
+
+from k2datascience.utils import size, save_fig
+
+
+def correlation_heatmap_plot(data, save=False, title=None):
+    """
+    Plot the correlation values as a heatmap.
+
+    :param pd.DataFrame data: data to be plotted
+    :param bool save: if True the figure will be saved
+    :param str title: dataset title
+    """
+    plot_title = 'Dataset Correlation'
+    if title:
+        title = f'{title} {plot_title}'
+    else:
+        title = plot_title
+
+    fig = plt.figure('Correlation Heatmap', figsize=(10, 8),
+                     facecolor='white', edgecolor='black')
+    rows, cols = (1, 1)
+    ax0 = plt.subplot2grid((rows, cols), (0, 0))
+
+    sns.heatmap(data.corr(),
+                annot=True, cbar_kws={'orientation': 'vertical'},
+                fmt='.2f', linewidths=5, vmin=-1, vmax=1, ax=ax0)
+
+    ax0.set_title(title, fontsize=size['title'])
+    ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(),
+                        fontsize=size['label'], rotation=80)
+    ax0.set_yticklabels(ax0.yaxis.get_majorticklabels(),
+                        fontsize=size['label'], rotation=0)
+
+    save_fig(title, save)
+
+
+def correlation_pair_plot(data, save=False, title=None):
+    """
+    Plot the correlation grid.
+
+    :param pd.DataFrame data: data to be plotted
+    :param bool save: if True the figure will be saved
+    :param str title: dataset title
+    """
+    data = data.select_dtypes(include=[np.int, np.float])
+
+    plot_title = 'Dataset Correlation'
+    if title:
+        title = f'{title} {plot_title}'
+    else:
+        title = plot_title
+
+    grid = sns.pairplot(data,
+                        diag_kws={'alpha': 0.5, 'bins': 30,
+                                  'edgecolor': 'black'},
+                        plot_kws={'alpha': 0.7})
+
+    grid.fig.suptitle(title,
+                      fontsize=size['super_title'], y=1.03)
+
+    n_cols = data.shape[1]
+    for n in range(n_cols):
+        grid.axes[n_cols - 1, n].set_xlabel(data.columns[n],
+                                            fontsize=size['label'])
+        grid.axes[n, 0].set_ylabel(data.columns[n], fontsize=size['label'])
+
+    save_fig(title, save)
 
 
 def distribution_plot(data, title, x_label, n_bins=50, title_size=24,
@@ -46,10 +114,7 @@ def distribution_plot(data, title, x_label, n_bins=50, title_size=24,
     plt.suptitle(title, fontsize=title_size, y=1.08)
     plt.tight_layout()
 
-    if save:
-        plt.savefig(f'{"_".join(title.split())}.png')
-    else:
-        plt.show()
+    save_fig(f'{"_".join(title.split())}', save)
 
 
 def pies_plot(data, title, subtitle, title_size=24, label_size=14,
@@ -90,7 +155,4 @@ def pies_plot(data, title, subtitle, title_size=24, label_size=14,
 
     plt.suptitle(title, fontsize=title_size, y=0.92)
 
-    if save:
-        plt.savefig(f'{"_".join(title.split())}.png')
-    else:
-        plt.show()
+    save_fig(f'{"_".join(title.split())}', save)
