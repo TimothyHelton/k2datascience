@@ -12,6 +12,13 @@ chronic_disease
     :show-inheritance:
     :synopsis: Module related to analyzing the CDC chronic disease dataset.
 
+classification
+--------------
+.. automodule:: classification
+    :members:
+    :show-inheritance:
+    :synopsis: Module related to classifying data.
+
 hr_analytics
 ------------
 .. automodule:: hr_analytics
