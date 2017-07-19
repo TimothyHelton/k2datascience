@@ -4,6 +4,7 @@
 from pkg_resources import get_distribution, DistributionNotFound
 import os.path as osp
 
+from . import classification
 from . import chronic_disease
 from . import hr_analytics
 from . import linear_regression
