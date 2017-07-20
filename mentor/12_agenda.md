@@ -17,6 +17,7 @@
     - Watched all lectures
     - First assignment is in progress
 - Added updated resume to website
+    - [Timothy_Helton_resume_long](https://timothyhelton.github.io/assets/Timothy_Helton_resume_long.pdf)
 - Talking with new contact Rene Sanchez this Saturday.
     - His friend heads [Marjorie's Fund](https://www.youtube.com/watch?v=K0H-LXkomic)
 - Talking with Dr. Nugen about setting up some C++ classes
