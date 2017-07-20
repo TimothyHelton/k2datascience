@@ -50,6 +50,7 @@ setup(
         'seaborn',
         'sklearn',
         'simplejson',
+        'statsmodels',
         ],
     package_dir={'k2datascience': 'k2datascience'},
     include_package_data=True,

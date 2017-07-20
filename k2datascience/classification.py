@@ -13,7 +13,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import sklearn
-from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.metrics import classification_report, confusion_matrix
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
@@ -45,12 +46,20 @@ class Weekly:
     - **data**: *DataFrame* data
     - **data_file**: *str* path to data file
     - **data_types**: *dict* data type definitions
+    - **knn_model**: *KNeighborsClassifier* K-Nearest Neighbors model
+    - **lda_model**: *LinearDiscriminantAnalysis* LDA model
     - **logistic_formula**: *str* logistic regression formula
     - **logistic_model**: *GLMResultsWrapper* statsmodels logistic regression \
         model
     - **predict**: *ndarray* model predicted values
     - **predicted_prob**: *ndarray* cutoff probability to make classification
     - **prediction_nom**: *ndarray* binary normalized predicted values
+    - **qda_model**: *QuadraticDiscriminantAnalysis* QDA model
+    - **train_pct**: *float* percentage of data to be used for training
+    - **x_train**: *DataFrame* training features
+    - **y_train**: *Series* training response
+    - **x_test**: *DataFrame* testing features
+    - **y_test**: *Series* testing response
     """
     def __init__(self):
         self.classification = None
@@ -70,22 +79,64 @@ class Weekly:
             'direction': str,
         }
 
+        self.knn_model = None
+
+        self.lda_model = None
+
         lags = ' + '.join([f'lag{x}' for x in range(1, 6, 1)])
         self.logistic_formula = f'direction ~ {lags} + volume'
-        self._logistic_model = None
+        self.logistic_model = None
         self.predict = None
         self.predicted_prob = 0.5
         self.prediction_nom = None
 
-        self.load_data()
+        self.qda_model = None
 
-    @property
-    def logistic_model(self):
-        self.logistic_regression()
-        return self._logistic_model
+        self.train_pct = 0.8
+        self.x_train = None
+        self.y_train = None
+        self.x_test = None
+        self.y_test = None
+
+        self.load_data()
 
     def __repr__(self):
         return 'Weekly()'
+
+    def calc_prediction(self, actual, predicted):
+        """
+        Predict response of logistic_model based on given values.
+
+        :param Series actual: actual response values
+        :param Series predicted: predicted response values
+        """
+        self.confusion = pd.DataFrame(confusion_matrix(actual, predicted))
+        self.classification = classification_report(actual, predicted)
+
+    def categorize(self, data):
+        """
+        Convert predicted values into categories
+
+        :param DataFrame data: data to be used to categorize predictions
+        """
+        self.predict = self.logistic_model.predict(data)
+        self.prediction_nom = self.predict.copy()
+        self.prediction_nom[self.prediction_nom >= self.predicted_prob] = 1
+        self.prediction_nom[self.prediction_nom < self.predicted_prob] = 0
+
+    def knn(self, n=1):
+        """
+        K-Nearest Neighbors Analysis of the data.
+
+        :param int n: number of nearest neighbors to consider
+        """
+        self.knn_model = (sklearn.neighbors
+                          .KNeighborsClassifier(n_neighbors=n)
+                          .fit(self.x_train.drop('direction', axis=1),
+                               self.y_train))
+        self.predict = (self.knn_model
+                        .predict(self.x_test.drop('direction', axis=1)))
+        self.calc_prediction(actual=self.y_test, predicted=self.predict)
 
     def load_data(self):
         """
@@ -103,22 +154,45 @@ class Weekly:
         self.data.direction = (self.data.direction
                                .astype('category'))
 
-    def logistic_regression(self):
+        train_idx = int(self.data.shape[0] * self.train_pct)
+        self.x_train = self.data[:train_idx]
+        self.y_train = self.data.direction[:train_idx].cat.codes
+        self.x_test = self.data[train_idx:]
+        self.y_test = self.data.direction[train_idx:].cat.codes
+
+    def lda(self):
+        """
+        Linear Discriminate Analysis of the data.
+        """
+        self.lda_model = (LinearDiscriminantAnalysis()
+                          .fit(self.x_train.drop('direction', axis=1),
+                               self.y_train))
+        self.predict = (self.lda_model
+                        .predict(self.x_test.drop('direction', axis=1)))
+        self.calc_prediction(actual=self.y_test, predicted=self.predict)
+
+    def logistic_regression(self, data):
         """
         Create logistic regression model with direction as the result.
+
+        :param DataFrame data: data features including response
         """
-        self._logistic_model = (smf.glm(formula=self.logistic_formula,
-                                        data=self.data,
-                                        family=sm.families.Binomial())
-                                .fit())
+        self.logistic_model = (smf.glm(formula=self.logistic_formula,
+                                       data=data,
+                                       family=sm.families.Binomial())
+                               .fit())
 
-        self.predict = self._logistic_model.predict()
-        self.prediction_nom = self.predict.copy()
-        self.prediction_nom[self.prediction_nom >= self.predicted_prob] = 1
-        self.prediction_nom[self.prediction_nom < self.predicted_prob] = 0
+        self.categorize(data)
+        y_test = data.direction.cat.codes
+        self.calc_prediction(actual=y_test, predicted=self.prediction_nom)
 
-        actual = self.data.direction.cat.codes
-        self.confusion = pd.DataFrame(confusion_matrix(actual,
-                                                       self.prediction_nom))
-        self.classification = classification_report(actual,
-                                                    self.prediction_nom)
+    def qda(self):
+        """
+        Quadratic Discriminate Analysis of the data.
+        """
+        self.qda_model = (QuadraticDiscriminantAnalysis()
+                          .fit(self.x_train.drop('direction', axis=1),
+                               self.y_train))
+        self.predict = (self.qda_model
+                        .predict(self.x_test.drop('direction', axis=1)))
+        self.calc_prediction(actual=self.y_test, predicted=self.predict)
