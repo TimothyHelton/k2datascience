@@ -20,7 +20,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-from k2datascience.utils import size, save_fig
+from k2datascience.utils import ax_formatter, size, save_fig
 
 
 log_format = ('%(asctime)s  %(levelname)8s  -> %(name)s <- '
@@ -42,12 +42,21 @@ class Auto:
 
     :Attributes:
 
+    - **classification** *str* classification report
+    - **confusion** *DataFrame* confusion matrix
+    - **data**: *DataFrame* data
+    - **data_file**: *str* path to data file
+    - **data_types**: *dict* data type definitions
+    - **model**: classification model type
+    - **predict**: *ndarray* model predicted values
     - **x_train**: *DataFrame* training features
     - **y_train**: *Series* training response
     - **x_test**: *DataFrame* testing features
     - **y_test**: *Series* testing response
     """
     def __init__(self):
+        self.classification = None
+        self.confusion = None
         self.data = None
         self.data_file = auto_data
         self.data_types = {
@@ -61,6 +70,8 @@ class Auto:
             'origin': np.int32,
             'name': str,
         }
+        self.model = None
+        self.predict = None
 
         self.train_pct = 0.8
         self.x_train = None
@@ -73,39 +84,36 @@ class Auto:
     def __repr__(self):
         return 'Auto()'
 
-    def load_data(self):
+    def accuracy_vs_k(self, max_k=20, save=False):
         """
-        Load the data into a DataFrame
+        Print the accuracy results for multiple values of K for a KNN model.
+
+        :param int max_k: largest K value to be tested
+        :param bool save: if True the figure will be saved
         """
-        def date_parse(year):
-            """
-            Convert year from YY to 19YY
-            :param str year: year to be converted
-            :return: year in 19YY format
-            :rtype: datetime
-            """
-            return pd.datetime.strptime(f'19{year}', '%Y')
-        self.data = (pd.read_csv(self.data_file,
-                                 dtype=self.data_types,
-                                 header=None,
-                                 index_col=6,
-                                 names=self.data_types.keys(),
-                                 parse_dates=[6],
-                                 date_parser=date_parse,
-                                 skiprows=1,
-                                 ))
-        binary_mpg = self.data.mpg.values.copy()
-        binary_mpg_mean = binary_mpg.mean()
-        binary_mpg[self.data.mpg < binary_mpg_mean] = 0
-        binary_mpg[self.data.mpg >= binary_mpg_mean] = 1
+        accuracy = {}
+        for n in range(1, max_k, 1):
+            self.classify(model='KNN', n=n)
+            accuracy[n] = (np.where(self.predict == self.y_test, 1, 0)
+                           .sum()
+                           / self.y_test.size)
 
-        train_idx = int(self.data.shape[0] * self.train_pct)
-        self.x_train = self.data[:train_idx]
-        self.y_train = pd.Series(binary_mpg[:train_idx])
-        self.x_test = self.data[train_idx:]
-        self.y_test = pd.Series(binary_mpg[train_idx:])
+        fig = plt.figure('KNN Accuracy vs K', figsize=(8, 6),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (1, 1)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
 
-        self.data['binary_mpg'] = binary_mpg
+        result = pd.Series(accuracy)
+        result.plot(ax=ax0)
+
+        ax0.set_title('Accuracy vs Nearest Neighbors Quantity',
+                      fontsize=size['title'])
+        ax0.set_xlabel('Nearest Neighbors Quantity $K$',
+                       fontsize=size['label'])
+        ax0.set_ylabel('Accuracy', fontsize=size['label'])
+        ax0.yaxis.set_major_formatter(ax_formatter['percent'])
+
+        save_fig('accuracy_vs_k', save)
 
     def box_plots(self, save=False):
         """
@@ -135,6 +143,84 @@ class Auto:
         plt.suptitle('Auto Dataset', fontsize=size['super_title'], y=1.03)
 
         save_fig('mpg_vs_cylinders', save)
+
+    def classify(self, model='LR', n=1):
+        """
+        Classify Data
+
+        :param str model: model designator (see table below for \
+            implemented types)
+        :param int n: number of nearest neighbors to evaluate
+
+        +------------------+-------------------------------+
+        | Model Designator | Scikit-Learn Model Type       |
+        +==================+===============================+
+        | KNN              | KNeighborsClassifier          |
+        +------------------+-------------------------------+
+        | LDA              | LinearDiscriminantAnalysis    |
+        +------------------+-------------------------------+
+        | LR               | LogisticRegression            |
+        +------------------+-------------------------------+
+        | QDA              | QuadraticDiscriminantAnalysis |
+        +------------------+-------------------------------+
+        """
+        models = {
+            'KNN': sklearn.neighbors.KNeighborsClassifier(n_neighbors=n),
+            'LDA': LinearDiscriminantAnalysis(),
+            'LR': LogisticRegression(),
+            'QDA': QuadraticDiscriminantAnalysis(),
+        }
+
+        if model not in models.keys():
+            logging.error(f'Requested model {model} has not been implemented.')
+
+        self.model = (models[model]
+                      .fit(self.x_train, self.y_train))
+        self.predict = self.model.predict(self.x_test)
+        self.confusion = pd.DataFrame(confusion_matrix(self.y_test,
+                                                       self.predict))
+        self.classification = classification_report(self.y_test,
+                                                    self.predict)
+
+    def load_data(self):
+        """
+        Load the data into a DataFrame
+        """
+        def date_parse(year):
+            """
+            Convert year from YY to 19YY
+            :param str year: year to be converted
+            :return: year in 19YY format
+            :rtype: datetime
+            """
+            return pd.datetime.strptime(f'19{year}', '%Y')
+        self.data = (pd.read_csv(self.data_file,
+                                 dtype=self.data_types,
+                                 header=None,
+                                 index_col=6,
+                                 names=self.data_types.keys(),
+                                 parse_dates=[6],
+                                 date_parser=date_parse,
+                                 skiprows=1,
+                                 ))
+        binary_mpg = self.data.mpg.values.copy()
+        binary_mpg_mean = binary_mpg.mean()
+        binary_mpg[self.data.mpg < binary_mpg_mean] = 0
+        binary_mpg[self.data.mpg >= binary_mpg_mean] = 1
+
+        features = ['displacement', 'horsepower', 'weight', 'origin']
+
+        train_idx = int(self.data.shape[0] * self.train_pct)
+        self.x_train = (self.data
+                        .loc[:, features]
+                        .select_dtypes(exclude=['object'])[:train_idx])
+        self.y_train = pd.Series(binary_mpg[:train_idx])
+        self.x_test = (self.data
+                       .loc[:, features]
+                       .select_dtypes(exclude=['object'])[train_idx:])
+        self.y_test = pd.Series(binary_mpg[train_idx:])
+
+        self.data['binary_mpg'] = binary_mpg
 
 
 class Weekly:
