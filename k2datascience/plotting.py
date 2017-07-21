@@ -54,7 +54,12 @@ def correlation_pair_plot(data, save=False, title=None):
     :param bool save: if True the figure will be saved
     :param str title: dataset title
     """
-    data = data.select_dtypes(include=[np.int, np.float])
+    include = (
+        np.int32,
+        np.int64,
+        np.float64,
+    )
+    data = data.select_dtypes(include=include)
 
     plot_title = 'Dataset Correlation'
     if title:
