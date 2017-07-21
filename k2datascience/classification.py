@@ -15,11 +15,12 @@ import seaborn as sns
 import sklearn
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-from k2datascience.utils import ax_formatter, save_fig, size
+from k2datascience.utils import size, save_fig
 
 
 log_format = ('%(asctime)s  %(levelname)8s  -> %(name)s <- '
@@ -33,6 +34,107 @@ data_dir = osp.realpath(osp.join(current_dir, '..', 'data', 'classification'))
 auto_data = osp.join(data_dir, 'auto.csv')
 boston_data = osp.join(data_dir, 'boston.csv')
 weekly_data = osp.join(data_dir, 'weekly.csv')
+
+
+class Auto:
+    """
+    Attributes and methods related to the auto dataset.
+
+    :Attributes:
+
+    - **x_train**: *DataFrame* training features
+    - **y_train**: *Series* training response
+    - **x_test**: *DataFrame* testing features
+    - **y_test**: *Series* testing response
+    """
+    def __init__(self):
+        self.data = None
+        self.data_file = auto_data
+        self.data_types = {
+            'mpg': np.float64,
+            'cylinders': np.int32,
+            'displacement': np.float64,
+            'horsepower': np.int32,
+            'weight': np.int32,
+            'acceleration': np.float64,
+            'year': np.int32,
+            'origin': np.int32,
+            'name': str,
+        }
+
+        self.train_pct = 0.8
+        self.x_train = None
+        self.y_train = None
+        self.x_test = None
+        self.y_test = None
+
+        self.load_data()
+
+    def __repr__(self):
+        return 'Auto()'
+
+    def load_data(self):
+        """
+        Load the data into a DataFrame
+        """
+        def date_parse(year):
+            """
+            Convert year from YY to 19YY
+            :param str year: year to be converted
+            :return: year in 19YY format
+            :rtype: datetime
+            """
+            return pd.datetime.strptime(f'19{year}', '%Y')
+        self.data = (pd.read_csv(self.data_file,
+                                 dtype=self.data_types,
+                                 header=None,
+                                 index_col=6,
+                                 names=self.data_types.keys(),
+                                 parse_dates=[6],
+                                 date_parser=date_parse,
+                                 skiprows=1,
+                                 ))
+        binary_mpg = self.data.mpg.values.copy()
+        binary_mpg_mean = binary_mpg.mean()
+        binary_mpg[self.data.mpg < binary_mpg_mean] = 0
+        binary_mpg[self.data.mpg >= binary_mpg_mean] = 1
+
+        train_idx = int(self.data.shape[0] * self.train_pct)
+        self.x_train = self.data[:train_idx]
+        self.y_train = pd.Series(binary_mpg[:train_idx])
+        self.x_test = self.data[train_idx:]
+        self.y_test = pd.Series(binary_mpg[train_idx:])
+
+        self.data['binary_mpg'] = binary_mpg
+
+    def box_plots(self, save=False):
+        """
+        Box plot of MPG vs Cylinders and MPG vs Origin
+
+        :param bool save: if True the figure will be saved
+        """
+        fig = plt.figure('Correlation Heatmap', figsize=(12, 5),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (1, 2)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+        ax1 = plt.subplot2grid((rows, cols), (0, 1), sharey=ax0)
+
+        sns.boxplot(x='cylinders', y='mpg', data=self.data, width=0.4, ax=ax0)
+
+        ax0.set_title('MPG vs Cylinders', fontsize=size['title'])
+        ax0.set_xlabel('Cylinders', fontsize=size['label'])
+
+        sns.boxplot(x='origin', y='mpg', data=self.data, width=0.4, ax=ax1)
+
+        ax1.set_title('MPG vs Origin', fontsize=size['title'])
+        ax1.set_xlabel('Origin', fontsize=size['label'])
+
+        for ax in (ax0, ax1):
+            ax.set_ylabel('MPG', fontsize=size['label'])
+
+        plt.suptitle('Auto Dataset', fontsize=size['super_title'], y=1.03)
+
+        save_fig('mpg_vs_cylinders', save)
 
 
 class Weekly:
