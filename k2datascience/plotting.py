@@ -14,6 +14,46 @@ import seaborn as sns
 from k2datascience.utils import ax_formatter, size, save_fig
 
 
+def confusion_heatmap_plot(matrix, names, save=False, title=None):
+    """
+    Plot the confusion matrix as a heatmap.
+
+    :param pd.DataFrame matrix: confusion matrix to be plotted
+    :param list names: feature names
+    :param bool save: if True the figure will be saved
+    :param str title: dataset title
+    """
+    plot_title = 'Dataset Confusion Matrix'
+    if title:
+        title = f'{title} {plot_title}'
+    else:
+        title = plot_title
+
+    fig = plt.figure('Confusion Heatmap', figsize=(10, 8),
+                     facecolor='white', edgecolor='black')
+    rows, cols = (1, 1)
+    ax0 = plt.subplot2grid((rows, cols), (0, 0))
+
+    matrix.index = names
+    matrix.columns = names
+
+    thresh = int(matrix.values.max() / 2)
+    sns.heatmap(matrix,
+                annot=True, cbar_kws={'orientation': 'vertical'},
+                cmap='Blues',
+                fmt='.0f', linewidths=5, vmin=0, vmax=thresh, ax=ax0)
+    cbar = ax0.collections[0].colorbar
+    cbar.set_ticks([])
+
+    ax0.set_title(title, fontsize=size['title'])
+    ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(),
+                        fontsize=size['label'], rotation=80)
+    ax0.set_yticklabels(ax0.yaxis.get_majorticklabels(),
+                        fontsize=size['label'], rotation=0)
+
+    save_fig(title, save)
+
+
 def correlation_heatmap_plot(data, save=False, title=None):
     """
     Plot the correlation values as a heatmap.
