@@ -5,6 +5,7 @@
 
 .. moduleauthor:: Timothy Helton <timothy.j.helton@gmail.com>
 """
+from collections import Counter
 import logging
 import os.path as osp
 
@@ -13,13 +14,17 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import sklearn
+from sklearn.datasets import fetch_lfw_people
+from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.model_selection import train_test_split
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
+from k2datascience import plotting
 from k2datascience.utils import ax_formatter, size, save_fig
 
 
@@ -221,6 +226,103 @@ class Auto:
         self.y_test = pd.Series(binary_mpg[train_idx:])
 
         self.data['binary_mpg'] = binary_mpg
+
+
+class WildFaces:
+    """
+    Attributes and methods related to the Labeled Faces in the Wild Dataset.
+
+    :Attributes:
+
+    - **data**: *ndarray* data containing the features
+    - **images**: *ndarray* pixel information for each image
+    - **pca**: *sklearn.PCA* scikit-learn instance of PCA class
+    - **target**: *ndarray* numerical values for each target
+    - **target_names**: *ndarray* categorical value for each target
+    - **var_pct**: *pd.Series* principle components variance percentage
+    - **var_pct_cum**: *pd.Series* principle components cumulative variance /
+        percentage
+    """
+    def __init__(self, n_faces=70):
+        self.dataset = fetch_lfw_people(min_faces_per_person=n_faces,
+                                        resize=0.4)
+        self.data = self.dataset['data']
+        self.images = self.dataset['images']
+        self.pca = None
+        self.target = self.dataset['target']
+        self.target_names = self.dataset['target_names']
+        self.var_pct = None
+        self.x_train, self.x_test, self.y_train, self.y_test = (
+            train_test_split(self.data, self.target, random_state=0)
+        )
+
+    def avg_face_plot(self):
+        """
+        Plot the average face determined by PCA.
+        """
+        if self.pca is None:
+            self.calc_pca()
+
+        fig = plt.figure(figsize=(8, 6))
+        plt.imshow(self.pca.mean_.reshape(self.images[0].shape),
+                   cmap=plt.cm.bone)
+
+    def calc_pca(self, n_components=150):
+        """
+        Calculate the data's Principal Components.
+
+        :param int n_components: number of principal components to return
+        """
+        self.pca = PCA(n_components=n_components)
+        self.pca.fit(self.x_train)
+
+        self.var_pct = pd.Series(self.pca.explained_variance_ratio_)
+
+    def components_plot(self, n=30):
+        """
+        Plot to the principal components.
+
+        :param int n: number of components to plot
+        """
+        fig = plt.figure(figsize=(16, 6))
+        for comp in range(n):
+            ax = fig.add_subplot(3, 10, comp + 1, xticks=[], yticks=[])
+            ax.imshow(self.pca.components_[comp].reshape((50, 37)),
+                      cmap=plt.cm.bone)
+
+    def faces_plot(self, n=15):
+        """
+        Plot the first n faces of the dataset.
+
+        :param int n: number of faces to plot
+        """
+        fig = plt.figure(figsize=(8, 6))
+        for im in range(n):
+            ax = fig.add_subplot(3, 5, im + 1, xticks=[], yticks=[])
+            ax.imshow(self.images[im], cmap=plt.cm.bone)
+
+    def targets_barplot(self, save=False):
+        """
+        Create bar plot of targets.
+
+        :param bool save: if True the figure will be saved
+        """
+        fig = plt.figure('Correlation Heatmap', figsize=(12, 5),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (1, 2)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+
+        counts = Counter(self.target)
+        (pd.Series({self.target_names[x]: counts[x]
+                    for x in range(self.target_names.size)})
+         .plot(kind='bar', alpha=0.5, edgecolor='black', ax=ax0))
+
+        ax0.set_title('Labeled Faces in the Wild', fontsize=size['title'])
+        ax0.set_xlabel('Target', fontsize=size['label'])
+        ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(), rotation=80)
+        ax0.set_ylabel('Count', fontsize=size['label'])
+
+        save_fig('lfw_target_boxplot', save)
 
 
 class Weekly:
