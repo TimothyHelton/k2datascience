@@ -24,7 +24,6 @@ from sklearn.model_selection import train_test_split
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-from k2datascience import plotting
 from k2datascience.utils import ax_formatter, size, save_fig
 
 
@@ -41,53 +40,20 @@ boston_data = osp.join(data_dir, 'boston.csv')
 weekly_data = osp.join(data_dir, 'weekly.csv')
 
 
-class Auto:
+class Classify:
     """
-    Attributes and methods related to the auto dataset.
-
-    :Attributes:
-
-    - **classification** *str* classification report
-    - **confusion** *DataFrame* confusion matrix
-    - **data**: *DataFrame* data
-    - **data_file**: *str* path to data file
-    - **data_types**: *dict* data type definitions
-    - **model**: classification model type
-    - **predict**: *ndarray* model predicted values
-    - **x_train**: *DataFrame* training features
-    - **y_train**: *Series* training response
-    - **x_test**: *DataFrame* testing features
-    - **y_test**: *Series* testing response
+    Base class for classification.
     """
     def __init__(self):
         self.classification = None
         self.confusion = None
         self.data = None
-        self.data_file = auto_data
-        self.data_types = {
-            'mpg': np.float64,
-            'cylinders': np.int32,
-            'displacement': np.float64,
-            'horsepower': np.int32,
-            'weight': np.int32,
-            'acceleration': np.float64,
-            'year': np.int32,
-            'origin': np.int32,
-            'name': str,
-        }
         self.model = None
         self.predict = None
-
-        self.train_pct = 0.8
         self.x_train = None
-        self.y_train = None
         self.x_test = None
+        self.y_train = None
         self.y_test = None
-
-        self.load_data()
-
-    def __repr__(self):
-        return 'Auto()'
 
     def accuracy_vs_k(self, max_k=20, save=False):
         """
@@ -98,7 +64,7 @@ class Auto:
         """
         accuracy = {}
         for n in range(1, max_k, 1):
-            self.classify(model='KNN', n=n)
+            self.classify_data(model='KNN', n=n)
             accuracy[n] = (np.where(self.predict == self.y_test, 1, 0)
                            .sum()
                            / self.y_test.size)
@@ -120,36 +86,7 @@ class Auto:
 
         save_fig('accuracy_vs_k', save)
 
-    def box_plots(self, save=False):
-        """
-        Box plot of MPG vs Cylinders and MPG vs Origin
-
-        :param bool save: if True the figure will be saved
-        """
-        fig = plt.figure('Correlation Heatmap', figsize=(12, 5),
-                         facecolor='white', edgecolor='black')
-        rows, cols = (1, 2)
-        ax0 = plt.subplot2grid((rows, cols), (0, 0))
-        ax1 = plt.subplot2grid((rows, cols), (0, 1), sharey=ax0)
-
-        sns.boxplot(x='cylinders', y='mpg', data=self.data, width=0.4, ax=ax0)
-
-        ax0.set_title('MPG vs Cylinders', fontsize=size['title'])
-        ax0.set_xlabel('Cylinders', fontsize=size['label'])
-
-        sns.boxplot(x='origin', y='mpg', data=self.data, width=0.4, ax=ax1)
-
-        ax1.set_title('MPG vs Origin', fontsize=size['title'])
-        ax1.set_xlabel('Origin', fontsize=size['label'])
-
-        for ax in (ax0, ax1):
-            ax.set_ylabel('MPG', fontsize=size['label'])
-
-        plt.suptitle('Auto Dataset', fontsize=size['super_title'], y=1.03)
-
-        save_fig('mpg_vs_cylinders', save)
-
-    def classify(self, model='LR', n=1):
+    def classify_data(self, model='LR', n=1):
         """
         Classify Data
 
@@ -186,6 +123,85 @@ class Auto:
                                                        self.predict))
         self.classification = classification_report(self.y_test,
                                                     self.predict)
+
+
+class Auto(Classify):
+    """
+    Attributes and methods related to the auto dataset.
+
+    :Attributes:
+
+    - **classification** *str* classification report
+    - **confusion** *DataFrame* confusion matrix
+    - **data**: *DataFrame* data
+    - **data_file**: *str* path to data file
+    - **data_types**: *dict* data type definitions
+    - **model**: classification model type
+    - **predict**: *ndarray* model predicted values
+    - **x_train**: *DataFrame* training features
+    - **y_train**: *Series* training response
+    - **x_test**: *DataFrame* testing features
+    - **y_test**: *Series* testing response
+    """
+    def __init__(self):
+        super().__init__()
+        self.classification = None
+        self.confusion = None
+        self.data = None
+        self.data_file = auto_data
+        self.data_types = {
+            'mpg': np.float64,
+            'cylinders': np.int32,
+            'displacement': np.float64,
+            'horsepower': np.int32,
+            'weight': np.int32,
+            'acceleration': np.float64,
+            'year': np.int32,
+            'origin': np.int32,
+            'name': str,
+        }
+        self.model = None
+        self.predict = None
+
+        self.train_pct = 0.8
+        self.x_train = None
+        self.y_train = None
+        self.x_test = None
+        self.y_test = None
+
+        self.load_data()
+
+    def __repr__(self):
+        return 'Auto()'
+
+    def box_plots(self, save=False):
+        """
+        Box plot of MPG vs Cylinders and MPG vs Origin
+
+        :param bool save: if True the figure will be saved
+        """
+        fig = plt.figure('Correlation Heatmap', figsize=(12, 5),
+                         facecolor='white', edgecolor='black')
+        rows, cols = (1, 2)
+        ax0 = plt.subplot2grid((rows, cols), (0, 0))
+        ax1 = plt.subplot2grid((rows, cols), (0, 1), sharey=ax0)
+
+        sns.boxplot(x='cylinders', y='mpg', data=self.data, width=0.4, ax=ax0)
+
+        ax0.set_title('MPG vs Cylinders', fontsize=size['title'])
+        ax0.set_xlabel('Cylinders', fontsize=size['label'])
+
+        sns.boxplot(x='origin', y='mpg', data=self.data, width=0.4, ax=ax1)
+
+        ax1.set_title('MPG vs Origin', fontsize=size['title'])
+        ax1.set_xlabel('Origin', fontsize=size['label'])
+
+        for ax in (ax0, ax1):
+            ax.set_ylabel('MPG', fontsize=size['label'])
+
+        plt.suptitle('Auto Dataset', fontsize=size['super_title'], y=1.03)
+
+        save_fig('mpg_vs_cylinders', save)
 
     def load_data(self):
         """
@@ -228,7 +244,7 @@ class Auto:
         self.data['binary_mpg'] = binary_mpg
 
 
-class WildFaces:
+class WildFaces(Classify):
     """
     Attributes and methods related to the Labeled Faces in the Wild Dataset.
 
@@ -244,6 +260,7 @@ class WildFaces:
         percentage
     """
     def __init__(self, n_faces=70):
+        super().__init__()
         self.dataset = fetch_lfw_people(min_faces_per_person=n_faces,
                                         resize=0.4)
         self.data = self.dataset['data']
