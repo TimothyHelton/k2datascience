@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from k2datascience.utils import size, save_fig
+from k2datascience.utils import ax_formatter, size, save_fig
 
 
 def correlation_heatmap_plot(data, save=False, title=None):
@@ -120,6 +120,47 @@ def distribution_plot(data, title, x_label, n_bins=50, title_size=24,
     plt.tight_layout()
 
     save_fig(f'{"_".join(title.split())}', save)
+
+
+def pca_variance(var_pct, fig_size=(10, 5), save=False, title=None):
+    """
+    Bar plot of Principle Components variance percentage.
+
+    :param Series var_pct: principle components variance percentage
+    :param tuple fig_size: figure size
+    :param bool save: if True the figure will be saved
+    :param str title: data set title
+    """
+    var_pct_cum = var_pct.cumsum()
+
+    plot_title = 'Principal Components Variance'
+    if title:
+        title = f'{title} {plot_title}'
+    else:
+        title = f'{plot_title}'
+
+    variance = pd.concat([var_pct, var_pct_cum], axis=1)
+    ax = (variance
+          .rename(index={x: x + 1 for x in range(var_pct.size)})
+          .plot(kind='bar', alpha=0.5, edgecolor='black',
+                figsize=fig_size))
+
+    ax.set_title(title, fontsize=size['title'])
+    ax.legend(['Individual Variance', 'Cumulative Variance'],
+              fontsize=size['legend'])
+    ax.set_xlabel('Components', fontsize=size['label'])
+    ax.set_xticklabels(ax.xaxis.get_majorticklabels(), rotation=0)
+    ax.set_ylabel('Percent (%)', fontsize=size['label'])
+    ax.yaxis.set_major_formatter(ax_formatter['percent'])
+
+    for patch in ax.patches:
+        height = patch.get_height()
+        ax.text(x=patch.get_x() + patch.get_width() / 2,
+                y=height + 0.01,
+                s=f'{height * 100:1.1f}%',
+                ha='center')
+
+    save_fig(title, save)
 
 
 def pies_plot(data, title, subtitle, title_size=24, label_size=14,
