@@ -19,8 +19,9 @@ from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, log_loss
 from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
@@ -43,17 +44,43 @@ weekly_data = osp.join(data_dir, 'weekly.csv')
 class Classify:
     """
     Base class for classification.
+
+    :Attributes:
+
+    - **classification** *str* classification report
+    - **confusion** *DataFrame* confusion matrix
+    - **data**: *DataFrame* data
+    - **log_loss**: *float* cross-entropy loss
+    - **model**: classification model type
+    - **predict**: *ndarray* model predicted values
+    - **x_train**: *DataFrame* training features
+    - **y_train**: *Series* training response
+    - **x_test**: *DataFrame* testing features
+    - **y_test**: *Series* testing response
     """
     def __init__(self):
         self.classification = None
         self.confusion = None
         self.data = None
+        self._log_loss = None
         self.model = None
         self.predict = None
+        self._score = None
         self.x_train = None
         self.x_test = None
         self.y_train = None
         self.y_test = None
+
+    def __repr__(self):
+        return 'Classify()'
+
+    @property
+    def log_loss(self):
+        return f'Log Loss: {self._log_loss:.3f}'
+
+    @property
+    def score(self):
+        return f'Model Score: {self._score:.3f}'
 
     def accuracy_vs_k(self, max_k=20, save=False):
         """
@@ -65,9 +92,7 @@ class Classify:
         accuracy = {}
         for n in range(1, max_k, 1):
             self.classify_data(model='KNN', n=n)
-            accuracy[n] = (np.where(self.predict == self.y_test, 1, 0)
-                           .sum()
-                           / self.y_test.size)
+            accuracy[n] = self._score
 
         fig = plt.figure('KNN Accuracy vs K', figsize=(8, 6),
                          facecolor='white', edgecolor='black')
@@ -103,6 +128,8 @@ class Classify:
         +------------------+-------------------------------+
         | LR               | LogisticRegression            |
         +------------------+-------------------------------+
+        | NB               | GaussianNB                    |
+        +------------------+-------------------------------+
         | QDA              | QuadraticDiscriminantAnalysis |
         +------------------+-------------------------------+
         """
@@ -110,6 +137,7 @@ class Classify:
             'KNN': sklearn.neighbors.KNeighborsClassifier(n_neighbors=n),
             'LDA': LinearDiscriminantAnalysis(),
             'LR': LogisticRegression(),
+            'NB': GaussianNB(),
             'QDA': QuadraticDiscriminantAnalysis(),
         }
 
@@ -123,6 +151,10 @@ class Classify:
                                                        self.predict))
         self.classification = classification_report(self.y_test,
                                                     self.predict)
+        self._log_loss = log_loss(self.y_test,
+                                  self.model.predict_proba(self.x_test))
+
+        self._score = self.model.score(self.x_test, self.y_test)
 
 
 class Auto(Classify):
