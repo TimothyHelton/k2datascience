@@ -68,6 +68,13 @@ plotting
     :show-inheritance:
     :synopsis: Module with plotting examples.
 
+preprocessing
+-------------
+.. automodule:: preprocessing
+    :members:
+    :show-inheritance:
+    :synopsis: Module related to preprocessing data.
+
 roots
 -----
 .. automodule:: roots
