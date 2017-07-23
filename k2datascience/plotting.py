@@ -29,8 +29,8 @@ def confusion_heatmap_plot(matrix, names, save=False, title=None):
     else:
         title = plot_title
 
-    fig = plt.figure('Confusion Heatmap', figsize=(10, 8),
-                     facecolor='white', edgecolor='black')
+    plt.figure('Confusion Heatmap', figsize=(10, 8),
+               facecolor='white', edgecolor='black')
     rows, cols = (1, 1)
     ax0 = plt.subplot2grid((rows, cols), (0, 0))
 
@@ -68,8 +68,8 @@ def correlation_heatmap_plot(data, save=False, title=None):
     else:
         title = plot_title
 
-    fig = plt.figure('Correlation Heatmap', figsize=(10, 8),
-                     facecolor='white', edgecolor='black')
+    plt.figure('Correlation Heatmap', figsize=(10, 8),
+               facecolor='white', edgecolor='black')
     rows, cols = (1, 1)
     ax0 = plt.subplot2grid((rows, cols), (0, 0))
 
@@ -136,8 +136,8 @@ def distribution_plot(data, title, x_label, n_bins=50, title_size=24,
     :param int label_size: label font size
     :param bool save: if True the plot will be saved as .png
     """
-    fig = plt.figure(f'{title} Distribution Plot', figsize=(10, 5),
-                     facecolor='white', edgecolor='black')
+    plt.figure(f'{title} Distribution Plot', figsize=(10, 5),
+               facecolor='white', edgecolor='black')
     ax1 = plt.subplot2grid((1, 2), (0, 0))
     ax2 = plt.subplot2grid((1, 2), (0, 1), sharex=ax1)
 
@@ -216,8 +216,8 @@ def pies_plot(data, title, subtitle, title_size=24, label_size=14,
     :param bool save: if True the plot will be saved as .png
     :return: 
     """
-    fig = plt.figure(f'{title} Pies Plot', figsize=(10, 12),
-                     facecolor='white', edgecolor='black')
+    _ = plt.figure(f'{title} Pies Plot', figsize=(10, 12),
+                   facecolor='white', edgecolor='black')
     ax1 = plt.subplot2grid((2, 2), (0, 0), colspan=2)
     ax2 = plt.subplot2grid((2, 2), (1, 0))
     ax3 = plt.subplot2grid((2, 2), (1, 1))
