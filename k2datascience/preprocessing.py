@@ -40,9 +40,9 @@ def prob_bootstrap(n):
     return 1 - (1 - 1 / n)**n
 
 
-class LoanDefault:
+class Resample:
     """
-    Attributes and methods related to the load default dataset.
+    Base class for resampling data.
 
     :Attributes:
 
@@ -66,24 +66,17 @@ class LoanDefault:
     def __init__(self):
         super().__init__()
         self.data = None
-        self.data_file = loan_default
-        self.data_types = {
-            'default': 'category',
-            'student': 'category',
-            'balance': np.float64,
-            'income': np.float64,
-        }
-
-        self.load_data()
+        self.data_file = None
+        self.data_types = {}
 
         # Model Parameters
         self.coefficients = None
         self.error = None
-        self.features = self.data.loc[:, ['balance', 'income']]
+        self.features = None
         self.intercept = None
         self.model = None
         self.predict = None
-        self.response = self.data.default.cat.codes
+        self.response = None
         self.score = None
         self.test_size = 0.3
 
@@ -92,25 +85,11 @@ class LoanDefault:
         self.y_test = None
         self.y_train = None
 
-    def __repr__(self):
-        return 'LoadDefault()'
-
-    def load_data(self):
-        """
-        Load the data into a DataFrame
-        """
-        self.data = (pd.read_csv(self.data_file,
-                                 dtype=self.data_types,
-                                 header=None,
-                                 names=self.data_types.keys(),
-                                 skiprows=1,
-                                 ))
-
     def logistic_bootstrap(self, n):
         """
         Bootstrap for Logistic Regression.
 
-        :param int n: number of bootstrap dataset to generate.
+        :param int n: number of bootstrap datasets to generate.
         """
         error_rates = []
         for n in range(n):
@@ -152,12 +131,107 @@ class LoanDefault:
         print(f'Model Score: {self.score:.3f}')
         print(f'Error Rate: {self.error:.2f}%')
 
+    def leave_one_out(self):
+        """
+        Bootstrap for Leave One Out Cross Validation.
+        """
+        error_rates = []
+        x = pd.concat([self.x_train, self.x_test])
+        y = pd.concat([self.y_train, self.y_test])
+
+        loo = LeaveOneOut()
+        for n, idx in enumerate(loo.split(x)):
+            train_idx, test_idx = idx[0], idx[1]
+            self.x_train, self.x_test = x.iloc[train_idx], x.iloc[test_idx]
+            self.y_train, self.y_test = y.iloc[train_idx], y.iloc[test_idx]
+            self.logistic_regression(seed=n)
+            error_rates.append(self.error)
+
+        error = pd.Series(error_rates)
+        print(f'Error Rate Mean: {error.mean():.3f}')
+
     def validation_split(self):
         """
         Split the data based on a Validation set.
-        :return:
         """
         self.x_train, self.x_test, self.y_train, self.y_test = (
             train_test_split(self.features, self.response,
                              test_size=self.test_size)
         )
+
+
+class LoanDefault(Resample):
+    """
+    Attributes and methods related to the loan default dataset.
+    """
+    def __init__(self):
+        super().__init__()
+        self.data_file = loan_default
+        self.data_types = {
+            'default': 'category',
+            'student': 'category',
+            'balance': np.float64,
+            'income': np.float64,
+        }
+
+        self.load_data()
+
+        self.features = self.data.loc[:, ['balance', 'income']]
+        self.response = self.data.default.cat.codes
+
+    def __repr__(self):
+        return 'LoadDefault()'
+
+    def load_data(self):
+        """
+        Load the data into a DataFrame
+        """
+        self.data = (pd.read_csv(self.data_file,
+                                 dtype=self.data_types,
+                                 header=None,
+                                 names=self.data_types.keys(),
+                                 skiprows=1,
+                                 ))
+
+
+class StockMarket(Resample):
+    """
+    Attributes and methods related to the stock market dataset.
+    """
+    def __init__(self):
+        super().__init__()
+        self.data_file = stock_market
+        self.data_types = {
+            'idx': np.int32,
+            'year': np.int64,
+            'lag1': np.float64,
+            'lag2': np.float64,
+            'lag3': np.float64,
+            'lag4': np.float64,
+            'lag5': np.float64,
+            'volume': np.float64,
+            'today': np.float64,
+            'direction': 'category',
+        }
+
+        self.load_data()
+
+        self.features = self.data.loc[:, ['lag1', 'lag2']]
+        self.response = self.data.direction.cat.codes
+
+    def __repr__(self):
+        return 'StockMarket()'
+
+    def load_data(self):
+        """
+        Load the data into a DataFrame
+        """
+        self.data = (pd.read_csv(self.data_file,
+                                 dtype=self.data_types,
+                                 header=None,
+                                 index_col=1,
+                                 names=self.data_types.keys(),
+                                 parse_dates=[1],
+                                 skiprows=1,
+                                 )
+                     .drop('idx', axis=1))
