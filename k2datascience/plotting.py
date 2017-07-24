@@ -128,10 +128,11 @@ def distribution_plot(data, title, x_label, n_bins=50, title_size=24,
                       label_size=14, save=False):
     """Create subplot of data with histogram and kernel density plot.
     
-    :param pd.DataFrame data: data to be plotted 
+    :param data: data to be plotted
+    :type: pd.DataFrame, pd.Series
     :param str title: plot title 
     :param str x_label: x-axis label
-    :param str n_bins: histogram number of bins
+    :param int n_bins: histogram number of bins
     :param int title_size: title font size
     :param int label_size: label font size
     :param bool save: if True the plot will be saved as .png
