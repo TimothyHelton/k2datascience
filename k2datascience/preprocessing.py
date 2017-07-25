@@ -170,6 +170,54 @@ class Resample:
         self.y = pd.concat([self.y_train, self.y_test])
 
 
+class BostonHousing(Resample):
+    """
+    Attributes and methods related to the Boston housing dataset.
+    """
+    def __init__(self):
+        super().__init__()
+        self.data_file = boston_housing
+        self.data_types = {
+            'idx': np.int64,
+            'crim': np.float64,
+            'zn': np.float64,
+            'indus': np.float64,
+            'nchas': 'category',
+            'nox': np.float64,
+            'rm': np.float64,
+            'age': np.float64,
+            'dis': np.float64,
+            'rad': 'category',
+            'tax': np.int64,
+            'ptratio': np.float64,
+            'black': np.float64,
+            'lstat': np.float64,
+            'medv': np.float64,
+        }
+
+        self.load_data()
+
+        self.features = self.data.loc[:, ['balance', 'income']]
+        self.response = self.data.mdev
+
+        self.validation_split()
+
+    def __repr__(self):
+        return 'Boston()'
+
+    def load_data(self):
+        """
+        Load the data into a DataFrame
+        """
+        self.data = (pd.read_csv(self.data_file,
+                                 dtype=self.data_types,
+                                 header=None,
+                                 index_col=0,
+                                 names=self.data_types.keys(),
+                                 skiprows=1,
+                                 ))
+
+
 class LoanDefault(Resample):
     """
     Attributes and methods related to the loan default dataset.
