@@ -72,7 +72,10 @@
 
 
 ---
-### <a name="notes"></a> Notes 
+### <a name="notes"></a> Notes
+Descartes Labs
+- Gunnar knows Marguerite Oneto (Product Manager)
+- Nga Nguyen knows Scot Halverson (computer scientist) 
 
 [Table of Contents](#toc)
 
