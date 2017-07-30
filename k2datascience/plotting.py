@@ -74,7 +74,7 @@ def correlation_heatmap_plot(data, save=False, title=None):
     ax0 = plt.subplot2grid((rows, cols), (0, 0))
 
     sns.heatmap(data.corr(),
-                annot=True, cbar_kws={'orientation': 'vertical'},
+                annot=True, cmap='Blues', cbar_kws={'orientation': 'vertical'},
                 fmt='.2f', linewidths=5, vmin=-1, vmax=1, ax=ax0)
 
     ax0.set_title(title, fontsize=size['title'])
