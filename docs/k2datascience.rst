@@ -19,6 +19,13 @@ classification
     :show-inheritance:
     :synopsis: Module related to classifying data.
 
+cluster
+-------
+.. automodule:: cluster
+    :members:
+    :show-inheritance:
+    :synopsis: Module related to clustering data.
+
 hr_analytics
 ------------
 .. automodule:: hr_analytics
