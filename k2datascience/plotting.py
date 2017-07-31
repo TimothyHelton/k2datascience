@@ -9,6 +9,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy.cluster.hierarchy as spch
 import seaborn as sns
 
 from k2datascience.utils import ax_formatter, size, save_fig
@@ -120,6 +121,39 @@ def correlation_pair_plot(data, save=False, title=None):
         grid.axes[n_cols - 1, n].set_xlabel(data.columns[n],
                                             fontsize=size['label'])
         grid.axes[n, 0].set_ylabel(data.columns[n], fontsize=size['label'])
+
+    save_fig(title, save)
+
+
+def agglomerative_dendrogram_plot(data, labels, title, method='ward',
+                                  metric='euclidean', save=False):
+    """
+    Plot agglomerative hierarchical clustering dendrogram.
+
+    :param ndarray data: data to be plotted
+    :param ndarray labels: cluster labels (x-axis)
+    :param str title: plot title
+    :param str method: agglomerative clustering method to be used
+    :param str metric: distance metric
+    :param bool save: if True the plot will be saved as .png
+    """
+    plot_title = 'Agglomerative Hierarchical Clustering'
+    if title:
+        title = f'{title} {plot_title}'
+    else:
+        title = plot_title
+
+    plt.figure('Agglomerative Dendrogram', figsize=(15, 10),
+               facecolor='white', edgecolor='black')
+    rows, cols = (1, 1)
+    ax0 = plt.subplot2grid((rows, cols), (0, 0))
+
+    cluster = spch.linkage(data, method=method, metric=metric)
+    spch.dendrogram(cluster, labels=labels, ax=ax0)
+
+    ax0.set_title(title, fontsize=size['title'])
+    ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(),
+                        fontsize=size['label'])
 
     save_fig(title, save)
 
