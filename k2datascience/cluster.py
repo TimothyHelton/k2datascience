@@ -18,8 +18,8 @@ import pandas as pd
 import scipy.cluster.hierarchy as spch
 import seaborn as sns
 import sklearn
+from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-from sklearn.metrics.pairwise import euclidean_distances
 
 from k2datascience.utils import ax_formatter, size, save_fig
 
@@ -114,8 +114,6 @@ class Cluster:
 class Arrests(Cluster):
     """
     Attributes and methods related to the US Arrests dataset.
-
-    :Attributes:
     """
     def __init__(self):
         super().__init__()
@@ -183,8 +181,6 @@ class Arrests(Cluster):
 class Genes(Cluster):
     """
     Attributes and methods related to the Genes dataset.
-
-    :Attributes:
     """
 
     def __init__(self):
@@ -219,3 +215,77 @@ class Genes(Cluster):
         ax0.set_title('Genes Dataset', fontsize=size['title'])
 
         save_fig('genes_box_plot', save)
+
+
+class Simulated(Cluster):
+    """
+    Attributes and methods related to a simulated dataset.
+
+    :Attributes:
+
+    - **kmeans**: *ndarray*
+    - **trans**: *ndarray* data translated into the Principle Components space
+    """
+    def __init__(self):
+        super().__init__()
+        self.kmeans = None
+        self.trans = None
+
+        self.load_data()
+
+    def __repr__(self):
+        return 'Simulated()'
+
+    def load_data(self):
+        """
+        Initialize the data attribute.
+        """
+        np.random.seed(0)
+        x1 = np.random.normal(loc=0, scale=1, size=(20, 50))
+        x2 = np.random.normal(loc=1, scale=0.5, size=(20, 50))
+        x3 = np.random.normal(loc=2, scale=1, size=(20, 50))
+        self.data = pd.DataFrame(np.r_[x1, x2, x3])
+        self.clusters = np.array([[0] * 20, [1] * 20, [2] * 20]).flatten()
+
+        self.std_x = (sklearn.preprocessing
+                      .StandardScaler()
+                      .fit_transform(self.data))
+
+    def plot_pca(self):
+        """
+        Plot first two principle components.
+        """
+        if not self.pca:
+            self.calc_pca()
+
+        p = bkplt.figure(title='2nd vs 1st Principle Component')
+
+        colormap = {0: 'red', 1: 'green', 2: 'blue'}
+        colors = [colormap[x] for x in self.clusters]
+
+        self.trans = self.pca.transform(self.data)
+        p.circle(self.trans[:, 0], self.trans[:, 1], color=colors,
+                 fill_alpha=0.2, size=10)
+        bkio.show(p)
+
+    def calc_kmeans(self, data, n_clusters):
+        """
+        Calculate K Means clusters
+
+        :param ndarray data: data to be clustered
+        :param int n_clusters: number of clusters
+        """
+        if not self.pca:
+            self.calc_pca()
+
+        self.trans = self.pca.transform(self.data)
+        self.kmeans = KMeans(n_clusters=n_clusters).fit(data)
+
+        p = bkplt.figure(title='KMeans Clustering')
+
+        colormap = {0: 'red', 1: 'green', 2: 'blue', 3: 'chartreuse'}
+        colors = [colormap[x] for x in self.kmeans.labels_]
+
+        p.circle(self.trans[:, 0], self.trans[:, 1], color=colors,
+                 fill_alpha=0.2, size=10)
+        bkio.show(p)
