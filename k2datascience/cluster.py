@@ -196,7 +196,7 @@ class Genes(Cluster):
         """
         Load dataset
         """
-        self.data = pd.read_csv(self.data_file, header=None)
+        self.data = pd.read_csv(self.data_file, header=None).T
 
     def box_plot(self, save=False, title=None):
         """
@@ -216,6 +216,17 @@ class Genes(Cluster):
 
         save_fig('genes_box_plot', save)
 
+    def unique_genes(self):
+        """
+        Determine the most unique genes.
+        """
+        if self.pca is None:
+            self.calc_pca()
+
+        return (pd.Series(np.sum(np.abs(self.pca.components_), axis=0))
+                .sort_values(ascending=False)
+                .head())
+
 
 class Simulated(Cluster):
     """
@@ -223,7 +234,7 @@ class Simulated(Cluster):
 
     :Attributes:
 
-    - **kmeans**: *ndarray*
+    - **kmeans**: *KMeans* sklearn KMeans cluster
     - **trans**: *ndarray* data translated into the Principle Components space
     """
     def __init__(self):
