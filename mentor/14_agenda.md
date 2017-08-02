@@ -17,6 +17,10 @@
 - Model Evaluation and Hypertuning Unit
     - Completed all lectures
     - Assignment for this unit is not created yet
+- Clustering
+    - Complete
+- Recommender Systems
+    - Complete
 
 [Table of Contents](#toc)
 
