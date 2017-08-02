@@ -21,6 +21,8 @@
     - Complete
 - Recommender Systems
     - Complete
+- Regression Unit
+    - Going through new lectures put up by Ty
 
 [Table of Contents](#toc)
 
