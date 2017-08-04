@@ -46,6 +46,7 @@
         watching the videos.
         - He also gave me a web link for a Flask tutorial.
         - Suggested purchasing a Spark book.
+- Applied for project at [Doximity](https://www.doximity.com/)
 
 [Table of Contents](#toc)
 
