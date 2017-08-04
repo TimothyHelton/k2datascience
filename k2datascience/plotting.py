@@ -217,7 +217,7 @@ def pca_variance(var_pct, fig_size=(10, 5), save=False, title=None):
     variance = pd.concat([var_pct, var_pct_cum], axis=1)
     ax = (variance
           .rename(index={x: x + 1 for x in range(var_pct.size)})
-          .plot(kind='bar', alpha=0.5, edgecolor='black',
+          .plot(kind='bar', alpha=0.7, cmap='bwr', edgecolor='black',
                 figsize=fig_size))
 
     ax.set_title(title, fontsize=size['title'])
@@ -231,7 +231,7 @@ def pca_variance(var_pct, fig_size=(10, 5), save=False, title=None):
     for patch in ax.patches:
         height = patch.get_height()
         ax.text(x=patch.get_x() + patch.get_width() / 2,
-                y=height + 0.01,
+                y=height - 0.05,
                 s=f'{height * 100:1.1f}%',
                 ha='center')
 
