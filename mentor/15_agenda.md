@@ -39,6 +39,17 @@
 
 ---
 ### <a name="notes"></a> Notes
+- [Google Refine](http://openrefine.org/)
+    - Find commonalities
+- Document who is missing from the datasets
+- Compare heights to common Americans in addition to pro athletes
+
+1. Feature Correlation
+    1. Do not throw out features yet.
+1. PCA
+1. ICA
+1. Trees
+1. ...
 
 [Table of Contents](#toc)
 
