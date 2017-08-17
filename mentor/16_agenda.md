@@ -23,6 +23,22 @@
 
 ---
 ### <a name="notes"></a> Notes
+- ~~Create datasets from the total data subsets~~
+- ~~Move Train Test Split to be a pipeline feature~~
+- Bootstrap
+    - ~~Randomly generate datasets based on splitting the Hall of Fame players
+     and Non-Hall of Fame~~
+        - 200 Hall of Fame
+        - 200 Non-Hall of Fame
+    - N-Fold Hold out
+    - ~~Test on original data~~ 
+- Decision Tree
+- Slice Data by player position
+- Slice Data by date
+- Create score for PCA
+- ~~Plot Correlation~~
+    - ~~Look for trends~~
+- ~~Bokeh map not working~~
 
 [Table of Contents](#toc)
 
