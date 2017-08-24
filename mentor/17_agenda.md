@@ -18,6 +18,7 @@
     - standardized original data is used for testing
 - Automate model evaluation
 - Create confusion matrix
+- Create notebook
 
 [Table of Contents](#toc)
 
