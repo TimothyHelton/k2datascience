@@ -35,7 +35,7 @@
 - Decision Tree
 - Slice Data by player position
 - Slice Data by date
-- Create score for PCA
+- ~~Create score for PCA~~
 - ~~Plot Correlation~~
     - ~~Look for trends~~
 - ~~Bokeh map not working~~
