@@ -33,6 +33,10 @@
 
 ---
 ### <a name="notes"></a> Notes
+- freshbooks
+- Find the subsets of misclassified players
+- Why is the classification report look out of agreement with the confusion 
+ matrix?
 
 [Table of Contents](#toc)
 

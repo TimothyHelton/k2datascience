@@ -28,8 +28,8 @@
 - Bootstrap
     - ~~Randomly generate datasets based on splitting the Hall of Fame players
      and Non-Hall of Fame~~
-        - 200 Hall of Fame
-        - 200 Non-Hall of Fame
+        - ~~200 Hall of Fame~~
+        - ~~200 Non-Hall of Fame~~
     - N-Fold Hold out
     - ~~Test on original data~~ 
 - Decision Tree
