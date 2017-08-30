@@ -11,15 +11,9 @@
 
 
 ---
-### <a name="ds_conversation"></a> Data Science Conversation (10 minutes)
-- Article
-
-[Table of Contents](#toc)
-
-
----
 ### <a name="status_update"></a> Status Update
-
+- Associated player names to classification predictions.
+- Worked on NBA write up.
 
 [Table of Contents](#toc)
 
@@ -28,7 +22,7 @@
 ### <a name="technical_questions"></a> Technical Questions 
 - The scikit learn classification report is weighted based on the number of 
 records in each class.
-    - This is why the values did not appear to align. 
+    - This is why the values did not appear to align.
 
 [Table of Contents](#toc)
 
